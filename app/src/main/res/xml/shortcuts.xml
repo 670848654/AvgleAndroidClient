@@ -1,0 +1,17 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 收藏夹 -->
+    <shortcut
+        android:shortcutId="channel"
+        android:enabled="true"
+        android:icon="@drawable/heart"
+        android:shortcutShortLabel="@string/favoriteShortName"
+        android:shortcutLongLabel="@string/favoriteLongName"
+        android:shortcutDisabledMessage="@string/disableMsg">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="pl.avgle.videos"
+            android:targetClass="pl.avgle.videos.main.view.FavoriteActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

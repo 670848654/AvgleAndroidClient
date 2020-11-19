@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/videos_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    card_view:cardBackgroundColor="@color/window_bg"
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="4dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
+    card_view:cardUseCompatPadding="false"
+    xmlns:app="http://schemas.android.com/tools"
+    app:ignore="NamespaceTypo">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/videos_img"
+                android:src="@drawable/loading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop" />
+
+            <pl.avgle.videos.custom.JZPlayer
+                android:id="@+id/player"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/videosName"
+                style="@style/textBase"
+                android:textSize="14sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_primary" />
+
+            <LinearLayout
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/videosDuration"
+                        style="@style/textBase"
+                        android:textSize="12sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/grey600" />
+
+                    <TextView
+                        android:id="@+id/date"
+                        style="@style/textBase"
+                        android:textSize="12sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/grey600" />
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5">
+
+                    <TextView
+                        android:id="@+id/fps"
+                        style="@style/textBase"
+                        android:textSize="12sp"
+                        android:layout_width="50dp"
+                        android:layout_height="20dp"
+                        android:layout_marginRight="3dp"
+                        android:layout_toLeftOf="@+id/hd"
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/video_fps"
+                        android:gravity="center"
+                        android:visibility="invisible"
+                        android:text="60FPS" />
+
+                    <TextView
+                        android:id="@+id/hd"
+                        style="@style/textBase"
+                        android:textSize="12sp"
+                        android:layout_width="30dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/video_hd"
+                        android:gravity="center"
+                        android:visibility="invisible"
+                        android:text="HD" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

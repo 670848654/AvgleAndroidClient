@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">Avgle</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="permissions_text">为了正常使用,需要以下权限!</string>
+    <string name="no_permissions_text">未能获取到相关权限!</string>
+
+    <string name="data_loading">玩命加载中...</string>
+    <string name="data_load_failed">数据加载失败，点击重试</string>
+
+    <string name="about_title">关于</string>
+
+    <string name="channel_title">频道</string>
+    <string name="exit_app">再按一次退出应用</string>
+    <string name="search_text">请输入检索内容...</string>
+
+    <string-array name="home_order">
+        <item>1 day</item>
+        <item>1 week</item>
+        <item>1 month</item>
+        <item>Forever</item>
+    </string-array>
+
+    <string-array name="favorite_arr">
+        <item>频道</item>
+        <item>标签</item>
+        <item>视频</item>
+    </string-array>
+
+    <string name="favorite_success">已加入收藏夹</string>
+    <string name="channel_is_exist">该频道已经收藏过了</string>
+
+    <string name="tag_title">标签</string>
+
+    <string name="favorite_title">收藏夹</string>
+    <string name="favorite_tag_dialog_title">自定义标签</string>
+    <string name="favorite_tag_dialog_positive">添加</string>
+    <string name="favorite_tag_dialog_negative">取消</string>
+    <string name="favorite_tag_dialog_error">参数不能为空~</string>
+
+    <string name="tag_is_exist">该标签已经收藏过了</string>
+
+    <string name="video_is_exist">该视频已经收藏过了</string>
+
+    <string name="open_source_title">开源相关</string>
+
+    <string name="cancel">取消</string>
+    <string name="favorite_video_empty_error">无相关视频</string>
+    <string name="empty_channel">收藏为空</string>
+
+    <string name="now_version">当前版本</string>
+    <string name="open_source_library">开源相关</string>
+    <string name="add">添加</string>
+    <string name="order">排序</string>
+    <string name="page">跳转</string>
+    <string name="search">搜索</string>
+    <string name="source">数据来源</string>
+    <string name="source_url">https://avgle.github.io/doc/</string>
+    <string name="source_desc">Avgle</string>
+    <string name="statement">声明</string>
+    <string name="statement_desc">仅供学习交流\n禁止非法传播或用于商业用途</string>
+    <string name="test_model">测试</string>
+    <string name="test_model_desc">OnePlus 7 Pro\nAndroid 10</string>
+    <string name="cache">缓存目录</string>
+    <string name="cache_text">/AvgleVideos/\n卸载后自行删除此目录</string>
+    <string name="version">1.0</string>
+    <string name="videos_long">收藏的视频</string>
+    <string name="videos_short">收藏的视频</string>
+    <string name="final_compile">最后编译</string>
+    <string name="final_compile_time">2020年11月19日</string>
+
+    <string name="disableMsg">不可用</string>
+    <string name="favoriteShortName">收藏夹</string>
+    <string name="favoriteLongName">收藏夹</string>
+
+    <string name="add_favorite">添加到收藏列表</string>
+    <string name="remove_favorite">移出收藏列表</string>
+    <string name="videos">播放视频</string>
+    <string name="preview">播放预览</string>
+    <string name="browser">通过外部浏览器访问</string>
+
+    <string name="ck_network_error">连接Github超时，请重试</string>
+    <string name="ck_network_error_start">连接Github超时，检测更新失败</string>
+    <string name="try_again">重试</string>
+    <string name="no_new_version">已是最新版本，无需更新</string>
+    <string name="download_error">下载失败</string>
+    <string name="find_new_version">发现新版本</string>
+    <string name="update_now">现在更新</string>
+    <string name="update_after">暂不更新</string>
+</resources>

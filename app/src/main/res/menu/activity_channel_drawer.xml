@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_tags"
+            android:icon="@drawable/baseline_local_offer_white_48dp"
+            android:title="标签" />
+        <!-- 最新上传视频 -->
+        <item
+            android:id="@+id/nav_new"
+            android:icon="@drawable/baseline_fiber_new_white_48dp"
+            android:title="最新视频" />
+        <!-- 最热门视频 -->
+        <item
+            android:id="@+id/nav_hot"
+            android:icon="@drawable/baseline_whatshot_white_48dp"
+            android:title="热门视频" />
+        <!-- 推荐视频 -->
+        <item
+            android:id="@+id/nav_featured"
+            android:icon="@drawable/baseline_thumb_up_white_48dp"
+            android:title="推荐视频" />
+    </group>
+    <!-- 收藏夹 -->
+    <group
+        android:id="@+id/group2"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_favorite"
+            android:icon="@drawable/baseline_star_white_48dp"
+            android:title="收藏夹" />
+    </group>
+    <!-- 关于 -->
+    <group
+        android:id="@+id/group3"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/baseline_android_white_48dp"
+            android:title="关于" />
+    </group>
+</menu>

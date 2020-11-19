@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="25dp"
+    android:paddingLeft="25dp"
+    android:paddingRight="25dp"
+    android:orientation="vertical">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="请输入标签">
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/tag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"
+            app:met_baseColor="@color/text_color_primary"
+            app:met_primaryColor="@color/pornhub"
+            app:met_errorColor="@color/red500" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

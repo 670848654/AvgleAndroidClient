@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="pl.avgle.videos">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application
+        android:name=".application.Avgle"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <!-- 开始界面 -->
+        <activity
+            android:name=".main.view.StartActivity"
+            android:label="@string/app_name"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:theme="@style/startTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+        <!-- 频道列表 -->
+        <activity
+            android:name=".main.view.ChannelActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!-- 标签列表 -->
+        <activity
+            android:name=".main.view.TagsActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <!-- 视频列表 -->
+        <activity
+            android:name=".main.view.VideosActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <!-- 设置 -->
+        <activity
+            android:name=".main.view.FavoriteActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <!-- 关于 -->
+        <activity
+            android:name=".main.view.AboutActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <!-- 开源相关 -->
+        <activity
+            android:name=".main.view.OpenSourceActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <!-- 播放器 -->
+        <!-- WebView -->
+        <activity android:name=".main.view.WebViewActivity"
+            android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/AppTheme.FullScreenTheme" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="pl.avgle.videos.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_path" />
+        </provider>
+    </application>
+</manifest>
