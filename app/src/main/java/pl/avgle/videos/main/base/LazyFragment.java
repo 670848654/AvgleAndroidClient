@@ -21,7 +21,7 @@ import pl.avgle.videos.application.Avgle;
 import pl.avgle.videos.bean.SelectBean;
 
 public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment {
-    private boolean isFragmentVisible;
+    protected boolean isFragmentVisible;
     private boolean isPrepared;
     private boolean isFirstLoad = true;
     private boolean forceLoad = false;

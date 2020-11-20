@@ -82,11 +82,10 @@
     <string name="preview">播放预览</string>
     <string name="browser">通过外部浏览器访问</string>
 
+    <string name="check_update_text">检测更新中&#8230;</string>
     <string name="ck_network_error">连接Github超时，请重试</string>
     <string name="ck_network_error_start">连接Github超时，检测更新失败</string>
-    <string name="try_again">重试</string>
     <string name="no_new_version">已是最新版本，无需更新</string>
-    <string name="download_error">下载失败</string>
     <string name="find_new_version">发现新版本</string>
     <string name="update_now">现在更新</string>
     <string name="update_after">暂不更新</string>

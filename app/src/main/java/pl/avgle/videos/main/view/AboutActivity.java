@@ -101,6 +101,7 @@ public class AboutActivity extends BaseActivity {
                 Utils.openBrowser(this, Utils.getString(R.string.source_url));
                 break;
             case R.id.check_update:
+                p = Utils.getProDialog(this, R.string.check_update_text);
                 new Handler().postDelayed(() -> new HttpGet(UpdateApi.CHECK_UPDATE, new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {

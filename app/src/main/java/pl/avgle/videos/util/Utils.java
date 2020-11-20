@@ -278,6 +278,20 @@ public class Utils {
     }
 
     /**
+     * 加载框
+     *
+     * @return
+     */
+    public static ProgressDialog getProDialog(Context context, @StringRes int id) {
+        ProgressDialog p = new ProgressDialog(context);
+        p.setMessage(getString(id));
+        p.setCancelable(false);
+        p.show();
+        return p;
+    }
+
+
+    /**
      * 关闭加载框
      *
      * @param p

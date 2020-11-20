@@ -65,7 +65,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
             }
         }
         fab = getActivity().findViewById(R.id.fab);
-        setFabOnClick();
+        if (isFragmentVisible) setFabOnClick();
         if (Utils.checkHasNavigationBar(getActivity()))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(getActivity()));
         initAdapter();

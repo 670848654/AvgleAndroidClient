@@ -61,7 +61,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
             }
         }
         fab = getActivity().findViewById(R.id.fab);
-        setFabOnClick();
+        if (isFragmentVisible) setFabOnClick();
         if (Utils.checkHasNavigationBar(getActivity()))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(getActivity()));
         initAdapter();
