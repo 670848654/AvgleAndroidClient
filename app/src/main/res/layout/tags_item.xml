@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardBackgroundColor="@color/window_bg"
-    card_view:cardCornerRadius="0dp"
+    card_view:cardCornerRadius="2dp"
     card_view:cardElevation="4dp"
     android:layout_marginTop="2dp"
     android:layout_marginLeft="2dp"
@@ -16,17 +16,14 @@
     card_view:cardUseCompatPadding="false">
 
     <RelativeLayout
+        android:id="@+id/item_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/collectionsImg"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:src="@drawable/default_image"
             android:transitionName="sharedImg"

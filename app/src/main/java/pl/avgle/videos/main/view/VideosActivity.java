@@ -9,20 +9,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.snackbar.Snackbar;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -45,10 +48,13 @@ import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.BaseActivity;
 import pl.avgle.videos.main.contract.VideoContract;
 import pl.avgle.videos.main.presenter.VideoPresenter;
+import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.StatusBarUtil;
 import pl.avgle.videos.util.Utils;
 
 public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresenter> implements VideoContract.View,JZPlayer.CompleteListener {
+    @BindView(R.id.appBarLayout)
+    AppBarLayout appBarLayout;
     @BindView(R.id.rv_list)
     RecyclerView mRecyclerView;
     private VideosAdapter mVideosAdapter;
@@ -80,8 +86,9 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     private boolean isErr = true;
     private SearchView mSearchView;
 
-    protected JZPlayer player;
-    protected int index;
+    private JZPlayer player;
+    private RelativeLayout hdView;
+    private int index;
 
     private BottomSheetDialog mOrderDialog;
     private RadioGroup mOrderGroup;
@@ -143,6 +150,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     }
 
     public void initToolbar() {
+        appBarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                Utils.getActivityAppBarLayoutHeight()));
         st.setTitle(toolbarTitle);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -165,7 +174,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mVideosAdapter = new VideosAdapter(this, list);
+        mVideosAdapter = new VideosAdapter(list);
         mVideosAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
@@ -176,6 +185,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) {
                 JZPlayer player = view.findViewById(R.id.player);
+                hdView = view.findViewById(R.id.hd_view);
                 detachedFromWindow(player);
             }
         });
@@ -185,6 +195,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             selectBeanList = new ArrayList<>();
             selectBeanList.add(new SelectBean(Utils.getString(R.string.preview), R.drawable.baseline_videocam_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.videos), R.drawable.baseline_movie_white_48dp));
+            selectBeanList.add(new SelectBean(Utils.getString(R.string.search_keyword), R.drawable.baseline_zoom_in_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.browser), R.drawable.baseline_open_in_new_white_48dp));
             selectAdapter.setNewData(selectBeanList);
@@ -194,21 +205,26 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                         removePlayer(player);
                         index = position;
                         player = view.findViewById(R.id.player);
+                        hdView = view.findViewById(R.id.hd_view);
                         player.setListener(this);
                         openPlayer(player, bean);
                         break;
                     case 1:
-                         /*
-                        final String ts = String.valueOf(System.currentTimeMillis() / 1000);
-                        String url = String.format(AvgleApi.PSVP, bean.getVid(), ts, Utils.b(bean.getVid(), ts));
-                        Utils.goToPlay(VideosFavoriteActivity.this, bean.getTitle(), url, bean.getPreview_url());
-                        */
                         startActivity(new Intent(this, WebViewActivity.class).putExtra("url", bean.getEmbedded_url()));
                         break;
                     case 2:
-                        collectionChannel(bean);
+                        Intent intent = new Intent(this, VideosActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("type", QueryType.QUERY_TYPE);
+                        bundle.putString("name", bean.getKeyword());
+                        bundle.putString("order", (String) SharedPreferencesUtils.getParam(this, "videos_order", "mr"));
+                        intent.putExtras(bundle);
+                        startActivity(intent);
                         break;
                     case 3:
+                        collectionChannel(bean);
+                        break;
+                    case 4:
                         Utils.openBrowser(VideosActivity.this, bean.getVideo_url());
                         break;
                 }
@@ -329,6 +345,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
+        hdView.setVisibility(View.GONE);
+        hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
         player.titleTextView.setVisibility(View.GONE);
         player.bottomProgressBar.setVisibility(View.GONE);
         player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_NORMAL);
@@ -362,6 +380,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         player.releaseAllVideos();
         player.setVisibility(View.GONE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
+        hdView.setVisibility(View.VISIBLE);
+        hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
     }
 
     @Override

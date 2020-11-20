@@ -78,6 +78,7 @@
 
     <string name="add_favorite">添加到收藏列表</string>
     <string name="remove_favorite">移出收藏列表</string>
+    <string name="search_keyword">搜索相关视频</string>
     <string name="videos">播放视频</string>
     <string name="preview">播放预览</string>
     <string name="browser">通过外部浏览器访问</string>

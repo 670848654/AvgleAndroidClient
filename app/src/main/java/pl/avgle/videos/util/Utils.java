@@ -324,4 +324,22 @@ public class Utils {
         alertDialog = builder.create();
         alertDialog.show();
     }
+
+    public static int getActivityAppBarLayoutHeight() {
+        Resources resources = context.getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        return dm.widthPixels / 16 * 9;
+    }
+
+    public static int getVideoItemHeight() {
+        Resources resources = context.getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        return (dm.widthPixels - dpToPx(context,8)) / 16 * 9;
+    }
+
+    public static int getChannelTagHeight() {
+        Resources resources = context.getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        return (dm.widthPixels / 2 - dpToPx(context,8)) / 16 * 9;
+    }
 }

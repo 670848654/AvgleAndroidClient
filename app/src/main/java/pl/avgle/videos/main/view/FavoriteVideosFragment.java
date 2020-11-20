@@ -3,12 +3,16 @@ package pl.avgle.videos.main.view;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -18,23 +22,21 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.VideosAdapter;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.VideoBean;
+import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.custom.JZPlayer;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.LazyFragment;
 import pl.avgle.videos.main.contract.VideoContract;
 import pl.avgle.videos.main.presenter.VideoPresenter;
+import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
 public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, VideoPresenter> implements VideoContract.View, JZPlayer.CompleteListener,MaterialSearchBar.OnSearchActionListener {
@@ -47,8 +49,9 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     private VideosAdapter mVideosAdapter;
     private  List<VideoBean.ResponseBean.VideosBean> list = new ArrayList<>();
     private View view;
-    protected JZPlayer player;
-    protected int index;
+    private JZPlayer player;
+    private RelativeLayout hdView;
+    private int index;
     private List<VideoBean.ResponseBean.VideosBean> searchList = new ArrayList<>();
     private boolean isSearch = false;
     private FloatingActionButton fab;
@@ -100,7 +103,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
 
     public void initAdapter() {
         if (mVideosAdapter == null) {
-            mVideosAdapter = new VideosAdapter(getActivity(), list);
+            mVideosAdapter = new VideosAdapter(list);
             mVideosAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
             mVideosAdapter.bindToRecyclerView(mRecyclerView);
             mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
@@ -112,6 +115,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                 @Override
                 public void onChildViewDetachedFromWindow(@NonNull View view) {
                     JZPlayer player = view.findViewById(R.id.player);
+                    hdView = view.findViewById(R.id.hd_view);
                     detachedFromWindow(player);
                 }
             });
@@ -121,6 +125,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                 selectBeanList = new ArrayList<>();
                 selectBeanList.add(new SelectBean(Utils.getString(R.string.preview), R.drawable.baseline_videocam_white_48dp));
                 selectBeanList.add(new SelectBean(Utils.getString(R.string.videos), R.drawable.baseline_movie_white_48dp));
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.search_keyword), R.drawable.baseline_zoom_in_white_48dp));
                 selectBeanList.add(new SelectBean(Utils.getString(R.string.remove_favorite), R.drawable.baseline_remove_white_48dp));
                 selectBeanList.add(new SelectBean(Utils.getString(R.string.browser), R.drawable.baseline_open_in_new_white_48dp));
                 selectAdapter.setNewData(selectBeanList);
@@ -130,6 +135,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                             removePlayer(player);
                             index = position;
                             player = view.findViewById(R.id.player);
+                            hdView = view.findViewById(R.id.hd_view);
                             player.setListener(this);
                             openPlayer(player, bean);
                             break;
@@ -137,9 +143,18 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                             startActivity(new Intent(getActivity(), WebViewActivity.class).putExtra("url", bean.getEmbedded_url()));
                             break;
                         case 2:
-                            removeVideo(position, bean.getVid());
+                            Intent intent = new Intent(getActivity(), VideosActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("type", QueryType.QUERY_TYPE);
+                            bundle.putString("name", bean.getKeyword());
+                            bundle.putString("order", (String) SharedPreferencesUtils.getParam(getActivity(), "videos_order", "mr"));
+                            intent.putExtras(bundle);
+                            startActivity(intent);
                             break;
                         case 3:
+                            removeVideo(position, bean.getVid());
+                            break;
+                        case 4:
                             Utils.openBrowser(getActivity(), bean.getVideo_url());
                             break;
                     }
@@ -156,6 +171,8 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
+        hdView.setVisibility(View.GONE);
+        hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
         player.titleTextView.setVisibility(View.GONE);
         player.bottomProgressBar.setVisibility(View.GONE);
         player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_NORMAL);
@@ -189,6 +206,8 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         player.releaseAllVideos();
         player.setVisibility(View.GONE);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
+        hdView.setVisibility(View.VISIBLE);
+        hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
     }
 
     /**

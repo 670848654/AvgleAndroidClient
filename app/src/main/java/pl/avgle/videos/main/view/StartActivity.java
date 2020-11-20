@@ -86,6 +86,7 @@ public class StartActivity extends BaseActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    openMain();
                 }
             }
         });

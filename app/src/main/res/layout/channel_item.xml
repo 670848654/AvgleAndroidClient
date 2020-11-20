@@ -10,32 +10,22 @@
     android:layout_marginBottom="3dp"
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardBackgroundColor="@color/window_bg"
-    card_view:cardCornerRadius="0dp"
+    card_view:cardCornerRadius="2dp"
     card_view:cardElevation="4dp"
     card_view:cardUseCompatPadding="false">
 
     <RelativeLayout
+        android:id="@+id/item_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/img"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:layout_height="match_parent"
             android:adjustViewBounds="true"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:transitionName="sharedImg" />
-
-        <TextView
-            android:id="@+id/centerPop"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:gravity="center" />
 
         <RelativeLayout
             android:layout_alignBottom="@+id/img"

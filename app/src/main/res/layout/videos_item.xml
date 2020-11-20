@@ -4,32 +4,30 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/videos_card_view"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardBackgroundColor="@color/window_bg"
-    card_view:cardCornerRadius="0dp"
+    card_view:cardCornerRadius="2dp"
     card_view:cardElevation="4dp"
-    android:layout_marginTop="2dp"
-    android:layout_marginBottom="2dp"
+    android:layout_margin="4dp"
     card_view:cardUseCompatPadding="false"
     xmlns:app="http://schemas.android.com/tools"
     app:ignore="NamespaceTypo">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:id="@+id/img_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/videos_img"
                 android:src="@drawable/loading"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop" />
 
@@ -40,94 +38,113 @@
                 android:visibility="gone"/>
         </RelativeLayout>
 
-
         <RelativeLayout
+            android:layout_below="@+id/img_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
 
-            <TextView
+            <pl.avgle.videos.custom.MyTextView
                 android:id="@+id/videosName"
                 style="@style/textBase"
+                android:textSize="16sp"
+                android:textColor="@color/text_color_primary"
+                android:layout_margin="5dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:ellipsize="marquee"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <pl.avgle.videos.custom.MyTextView
+                android:id="@+id/keyword"
+                android:layout_below="@+id/videosName"
+                style="@style/textBase"
                 android:textSize="14sp"
-                android:layout_marginTop="5dp"
+                android:textColor="@color/grey600"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
-                android:maxLines="3"
-                android:ellipsize="end"
+                android:layout_marginBottom="5dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:ellipsize="marquee"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_color_primary" />
+                android:layout_height="wrap_content" />
 
-            <LinearLayout
-                android:layout_alignParentBottom="true"
+            <RelativeLayout
+                android:layout_below="@+id/keyword"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:padding="5dp"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:orientation="vertical">
+                <TextView
+                    android:id="@+id/videosDuration"
+                    style="@style/textBase"
+                    android:textSize="14sp"
+                    android:layout_alignParentLeft="true"
+                    android:drawableLeft="@drawable/baseline_watch_later_white_48dp"
+                    android:drawableTint="@color/grey600"
+                    android:drawablePadding="5dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey600" />
 
-                    <TextView
-                        android:id="@+id/videosDuration"
-                        style="@style/textBase"
-                        android:textSize="12sp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/grey600" />
-
-                    <TextView
-                        android:id="@+id/date"
-                        style="@style/textBase"
-                        android:textSize="12sp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/grey600" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5">
-
-                    <TextView
-                        android:id="@+id/fps"
-                        style="@style/textBase"
-                        android:textSize="12sp"
-                        android:layout_width="50dp"
-                        android:layout_height="20dp"
-                        android:layout_marginRight="3dp"
-                        android:layout_toLeftOf="@+id/hd"
-                        android:layout_alignParentBottom="true"
-                        android:background="@drawable/video_fps"
-                        android:gravity="center"
-                        android:visibility="invisible"
-                        android:text="60FPS" />
-
-                    <TextView
-                        android:id="@+id/hd"
-                        style="@style/textBase"
-                        android:textSize="12sp"
-                        android:layout_width="30dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
-                        android:background="@drawable/video_hd"
-                        android:gravity="center"
-                        android:visibility="invisible"
-                        android:text="HD" />
-
-                </RelativeLayout>
-
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/date"
+                    style="@style/textBase"
+                    android:textSize="14sp"
+                    android:layout_alignParentEnd="true"
+                    android:drawableLeft="@drawable/baseline_cloud_upload_white_48dp"
+                    android:drawableTint="@color/grey600"
+                    android:drawablePadding="5dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey600" />
+            </RelativeLayout>
 
         </RelativeLayout>
 
-    </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/hd_view"
+            android:layout_margin="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/hd"
+                style="@style/textBase"
+                android:textSize="12sp"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:background="@drawable/video_hd"
+                android:gravity="center"
+                android:layout_marginRight="5dp"
+                android:visibility="invisible"
+                android:text="HD" />
+
+            <TextView
+                android:id="@+id/fps"
+                style="@style/textBase"
+                android:textSize="12sp"
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:background="@drawable/video_fps"
+                android:gravity="center"
+                android:layout_toRightOf="@+id/hd"
+                android:visibility="invisible"
+                android:text="60FPS" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
 </androidx.cardview.widget.CardView>
