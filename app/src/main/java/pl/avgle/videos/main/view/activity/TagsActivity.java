@@ -1,8 +1,10 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -10,14 +12,18 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.TagsAdapter;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.TagsBean;
 import pl.avgle.videos.config.QueryType;
@@ -68,6 +74,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
 
     @Override
     protected void initData() {
+        EventBus.getDefault().register(this);
         initToolbar();
         initSwipe();
         initAdapter();
@@ -99,11 +106,11 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         mTagsAdapter = new TagsAdapter(list);
-        mTagsAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mTagsAdapter.setOnItemClickListener((adapter, view, position) -> {
             TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
             Intent intent = new Intent(TagsActivity.this, VideosActivity.class);
             Bundle bundle = new Bundle();
+            bundle.putSerializable("bean", (Serializable) bean);
             bundle.putInt("type", QueryType.COLLECTIONS_TYPE);
             bundle.putString("name", bean.getTitle());
             bundle.putString("img", bean.getCover_url());
@@ -112,13 +119,23 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(TagsActivity.this, view, "sharedImg").toBundle());
         });
         mTagsAdapter.setOnItemLongClickListener((adapter, view, position) -> {
+            ImageView favoriteView = view.findViewById(R.id.favorite_view);
             TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
             mBottomSheetDialogTitle.setText(bean.getTitle());
             selectBeanList = new ArrayList<>();
-            selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
+            if (bean.isFavorite())
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.remove_favorite), R.drawable.baseline_remove_white_48dp));
+            else
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
             selectAdapter.setNewData(selectBeanList);
             selectAdapter.setOnItemClickListener((selectAdapter, selectView, selectPosition) -> {
-                collectionTag(bean);
+                if (bean.isFavorite()) {
+                    bean.setFavorite(false);
+                    removeTag(favoriteView, bean);
+                } else {
+                    bean.setFavorite(true);
+                    collectionTag(favoriteView, bean);
+                }
                 mBottomSheetDialog.dismiss();
             });
             mBottomSheetDialog.show();
@@ -156,13 +173,23 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
      *
      * @param bean
      */
-    public void collectionTag(final TagsBean.ResponseBean.CollectionsBean bean) {
+    public void collectionTag(ImageView favoriteView, TagsBean.ResponseBean.CollectionsBean bean) {
         if (DatabaseUtil.checkTag(bean.getTitle()))
             application.showToastMsg(Utils.getString(R.string.tag_is_exist));
         else {
             DatabaseUtil.addTags(bean);
             application.showToastMsg(bean.getTitle() + "\n" + Utils.getString(R.string.favorite_success));
+            favoriteView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * 移除收藏
+     */
+    private void removeTag(ImageView favoriteView, TagsBean.ResponseBean.CollectionsBean bean) {
+        DatabaseUtil.deleteTag(bean.getTitle());
+        application.showToastMsg(bean.getTitle() + "\n" + Utils.getString(R.string.remove_favorite_success));
+        favoriteView.setVisibility(View.GONE);
     }
 
     @Override
@@ -226,5 +253,19 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
         mSwipe.setRefreshing(false);
         errorTitle.setText(text);
         mTagsAdapter.setEmptyView(errorView);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void ref(EventState eventState) {
+        if (eventState.getState() == 1) {
+            mTagsAdapter.setNewData(new ArrayList<>());
+            loadData();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }

@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;

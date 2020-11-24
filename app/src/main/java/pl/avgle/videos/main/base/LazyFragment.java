@@ -12,12 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import butterknife.Unbinder;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.SelectAdapter;
 import pl.avgle.videos.application.Avgle;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 
 public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment {
@@ -44,6 +47,7 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
         initmBottomSheetDialog();
         if (application == null) application = (Avgle) getActivity().getApplication();
         View view = initViews(inflater, container, savedInstanceState);
+        EventBus.getDefault().register(this);
         isPrepared = true;
         lazyLoad();
         return view;
@@ -95,6 +99,7 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
         if (null != mPresenter)
             mPresenter.detachView();
         isPrepared = false;
+        EventBus.getDefault().unregister(this);
         mUnBinder.unbind();
     }
 
@@ -132,4 +137,6 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
     public boolean isFragmentVisible() {
         return isFragmentVisible;
     }
+
+    public abstract void onEvent(EventState eventState);
 }

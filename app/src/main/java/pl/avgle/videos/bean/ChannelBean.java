@@ -57,6 +57,7 @@ public class ChannelBean {
             private String shortname;
             private String category_url;
             private String cover_url;
+            private boolean isFavorite;
 
             public String getCHID() {
                 return CHID;
@@ -112,6 +113,14 @@ public class ChannelBean {
 
             public void setCover_url(String cover_url) {
                 this.cover_url = cover_url;
+            }
+
+            public boolean isFavorite() {
+                return isFavorite;
+            }
+
+            public void setFavorite(boolean favorite) {
+                isFavorite = favorite;
             }
         }
     }

@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -30,15 +29,20 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.VideosAdapter;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
+import pl.avgle.videos.bean.TagsBean;
 import pl.avgle.videos.bean.VideoBean;
 import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.config.VideosOrderType;
@@ -93,6 +97,11 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     private BottomSheetDialog mOrderDialog;
     private RadioGroup mOrderGroup;
 
+    private TagsBean.ResponseBean.CollectionsBean tagsBean;
+    private List<String> userTags;
+    private MenuItem favorteItem;
+    private boolean tagIsFavorite = false;
+
     @Override
     public void complete() {
         removePlayer(player);
@@ -146,6 +155,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             order = bundle.getString("order");
             img = bundle.getString("img");
             time = bundle.getString("time");
+            if (bundle.getSerializable("bean") != null)
+                tagsBean = (TagsBean.ResponseBean.CollectionsBean) bundle.getSerializable("bean");
         }
     }
 
@@ -196,10 +207,14 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             selectBeanList.add(new SelectBean(Utils.getString(R.string.preview), R.drawable.baseline_videocam_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.videos), R.drawable.baseline_movie_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.search_keyword), R.drawable.baseline_zoom_in_white_48dp));
-            selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
+            if (bean.isFavorite())
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.remove_favorite), R.drawable.baseline_remove_white_48dp));
+            else
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
             selectBeanList.add(new SelectBean(Utils.getString(R.string.browser), R.drawable.baseline_open_in_new_white_48dp));
             selectAdapter.setNewData(selectBeanList);
             selectAdapter.setOnItemClickListener((selectAdapter, selectView, selectPosition) -> {
+                ImageView favoriteView = view.findViewById(R.id.favorite_view);
                 switch (selectPosition) {
                     case 0:
                         removePlayer(player);
@@ -222,7 +237,13 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                         startActivity(intent);
                         break;
                     case 3:
-                        collectionChannel(bean);
+                        if (bean.isFavorite()) {
+                            bean.setFavorite(false);
+                            removeVideo(favoriteView, bean);
+                        } else {
+                            bean.setFavorite(true);
+                            collectionChannel(favoriteView, bean);
+                        }
                         break;
                     case 4:
                         Utils.openBrowser(VideosActivity.this, bean.getVideo_url());
@@ -236,19 +257,16 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         mVideosAdapter.setOnLoadMoreListener(() -> mRecyclerView.postDelayed(() -> {
             mSwipe.setEnabled(false);
             if (!hasMore) {
-                //数据全部加载完毕
                 mVideosAdapter.loadMoreEnd();
                 mSwipe.setEnabled(true);
             } else {
                 if (isErr) {
                     mSwipe.setEnabled(false);
-                    //成功获取更多数据
                     nowPage++;
                     isLoad = true;
                     mPresenter = createPresenter();
                     loadData();
                 } else {
-                    //获取更多数据失败
                     isErr = true;
                     mVideosAdapter.loadMoreFail();
                     mSwipe.setEnabled(true);
@@ -327,6 +345,19 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         runOnUiThread(() -> {
             if (!mActivityFinish) {
                 mSwipe.setRefreshing(false);
+                if (type == QueryType.COLLECTIONS_TYPE || type == QueryType.QUERY_TYPE) {
+                    userTags = DatabaseUtil.queryAllTagTitles();
+                    if (userTags.contains(toolbarTitle)) {
+                        tagIsFavorite = true;
+                        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
+                        favorteItem.setTitle(Utils.getString(R.string.remove_favorite));
+                    } else {
+                        tagIsFavorite = false;
+                        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
+                        favorteItem.setTitle(Utils.getString(R.string.add_favorite));
+                    }
+                    favorteItem.setVisible(true);
+                }
                 hasMore = bean.getResponse().isHas_more();
                 setLoadState(true);
                 List<VideoBean.ResponseBean.VideosBean> data = new ArrayList<>();
@@ -388,6 +419,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.videos_menu, menu);
         MenuItem item = menu.findItem(R.id.order);
+        favorteItem = menu.findItem(R.id.favorite);
+        favorteItem.setVisible(false);
         if (type == QueryType.DEFAULT || type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE) {
             item.setVisible(false);
         }
@@ -399,12 +432,15 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
+                    mSearchView.onActionViewCollapsed();
                     st.setTitle(query);
                     Utils.hideKeyboard(mSearchView);
                     mSearchView.clearFocus();
                     toolbarTitle = query;
                     type = QueryType.QUERY_TYPE;
                     mVideosAdapter.setNewData(list = new ArrayList<>());
+                    tagsBean = null;
+                    favorteItem.setVisible(false);
                     isLoad = false;
                     nowPage = 0;
                     mPresenter = createPresenter();
@@ -424,12 +460,19 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.order) {
-            if (isLoading)
-                Toast.makeText(this, "请在数据加载完成后再操作！", Toast.LENGTH_SHORT).show();
-            else
-                mOrderDialog.show();
-            return true;
+        switch (id) {
+            case R.id.favorite:
+                if (tagIsFavorite)
+                    removeTag(toolbarTitle);
+                else
+                    addTag(toolbarTitle);
+                break;
+            case R.id.order:
+                if (isLoading)
+                    Toast.makeText(this, "请在数据加载完成后再操作！", Toast.LENGTH_SHORT).show();
+                else
+                    mOrderDialog.show();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -450,13 +493,21 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
      *
      * @param bean
      */
-    public void collectionChannel(final VideoBean.ResponseBean.VideosBean bean) {
-        if (DatabaseUtil.checkVideo(bean.getVid()))
-            application.showToastMsg(Utils.getString(R.string.video_is_exist));
-        else {
-            DatabaseUtil.addVideo(bean);
-            application.showToastMsg(Utils.getString(R.string.favorite_success));
-        }
+    public void collectionChannel(ImageView favoriteView, VideoBean.ResponseBean.VideosBean bean) {
+        DatabaseUtil.addVideo(bean);
+        application.showToastMsg(bean.getVid() + "\n" + Utils.getString(R.string.favorite_success));
+        favoriteView.setVisibility(View.VISIBLE);
+        EventBus.getDefault().post(new EventState(2));
+    }
+
+    /**
+     * 移除收藏
+     */
+    private void removeVideo(ImageView favoriteView, VideoBean.ResponseBean.VideosBean bean) {
+        DatabaseUtil.deleteVideo(bean.getVid());
+        application.showToastMsg(bean.getVid() + "\n" + Utils.getString(R.string.remove_favorite_success));
+        favoriteView.setVisibility(View.GONE);
+        EventBus.getDefault().post(new EventState(2));
     }
 
     @Override
@@ -511,5 +562,41 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         super.onResume();
         if (player != null)
             player.releaseAllVideos();
+    }
+
+    /**
+     * 移除收藏
+     */
+    private void removeTag(String title) {
+        DatabaseUtil.deleteTag(title);
+        tagIsFavorite = false;
+        application.showToastMsg(title + "\n" + Utils.getString(R.string.remove_favorite_success));
+        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
+        favorteItem.setTitle(Utils.getString(R.string.add_favorite));
+        EventBus.getDefault().post(new EventState(1));
+    }
+
+    /**
+     * 自定义标签
+     */
+    public void addTag(String title) {
+        if (tagsBean != null) {
+            DatabaseUtil.addTags(tagsBean);
+        } else {
+            TagsBean.ResponseBean.CollectionsBean bean = new TagsBean.ResponseBean.CollectionsBean();
+            bean.setId(UUID.randomUUID().toString());
+            bean.setTitle(title);
+            bean.setKeyword("自定义");
+            bean.setCover_url("");
+            bean.setTotal_views(0);
+            bean.setVideo_count(0);
+            bean.setCollection_url("");
+            DatabaseUtil.addTags(bean);
+        }
+        tagIsFavorite = true;
+        application.showToastMsg(title + "\n" + Utils.getString(R.string.favorite_success));
+        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
+        favorteItem.setTitle(Utils.getString(R.string.remove_favorite));
+        EventBus.getDefault().post(new EventState(1));
     }
 }

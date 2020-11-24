@@ -8,6 +8,12 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
     <item
+        android:id="@+id/favorite"
+        android:orderInCategory="60"
+        android:icon="@drawable/baseline_star_white_48dp"
+        android:title="@string/add_favorite"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/order"
         android:orderInCategory="60"
         android:icon="@drawable/baseline_format_line_spacing_white_48dp"

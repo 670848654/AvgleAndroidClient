@@ -16,50 +16,61 @@
     app:ignore="NamespaceTypo">
 
     <LinearLayout
-        android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="5dp"
         android:orientation="vertical">
 
         <RelativeLayout
-            android:padding="5dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/github"
+                android:tint="@color/text_color_primary" />
 
             <TextView
                 android:id="@+id/title"
-                android:layout_centerVertical="true"
-                android:layout_alignParentStart="true"
-                android:textSize="18sp"
-                android:maxEms="12"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_color_primary" />
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/img"
+                android:maxEms="12"
+                android:padding="5dp"
+                android:textColor="@color/text_color_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/author"
-                android:textSize="16sp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/text_color_primary" />
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="5dp"
+                android:textColor="@color/text_color_primary"
+                android:textSize="16sp" />
         </RelativeLayout>
 
         <View
-            android:layout_margin="3dp"
+            android:layout_width="match_parent"
             android:layout_height="1px"
-            android:background="#212121"
-            android:layout_width="match_parent" />
+            android:layout_margin="3dp"
+            android:background="#212121" />
 
         <TextView
-            android:padding="5dp"
             android:id="@+id/desc"
-            android:textSize="16sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_primary" />
+            android:padding="5dp"
+            android:textColor="@color/text_color_primary"
+            android:textSize="16sp" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

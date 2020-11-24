@@ -112,6 +112,7 @@ public class VideoBean {
             private boolean privateX;
             private String vid;
             private String uid;
+            private boolean isFavorite;
 
             public String getTitle() {
                 return title;
@@ -247,6 +248,14 @@ public class VideoBean {
 
             public void setUid(String uid) {
                 this.uid = uid;
+            }
+
+            public boolean isFavorite() {
+                return isFavorite;
+            }
+
+            public void setFavorite(boolean favorite) {
+                isFavorite = favorite;
             }
         }
     }

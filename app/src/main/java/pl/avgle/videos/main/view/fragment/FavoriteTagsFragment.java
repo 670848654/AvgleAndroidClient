@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.fragment;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -8,14 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.TagsAdapter;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.TagsBean;
 import pl.avgle.videos.config.QueryType;
@@ -32,10 +34,11 @@ import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.LazyFragment;
 import pl.avgle.videos.main.contract.TagsContract;
 import pl.avgle.videos.main.presenter.TagsPresenter;
+import pl.avgle.videos.main.view.activity.VideosActivity;
 import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
-public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPresenter> implements TagsContract.View, View.OnClickListener {
+public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPresenter> implements TagsContract.View {
     @BindView(R.id.rv_list)
     RecyclerView mRecyclerView;
     @BindView(R.id.loading)
@@ -85,11 +88,11 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     public void initAdapter() {
         if (mTagsAdapter == null) {
             mTagsAdapter = new TagsAdapter(list);
-            mTagsAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
             mTagsAdapter.setOnItemClickListener((adapter, view, position) -> {
                 TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
                 Intent intent = new Intent(getActivity(), VideosActivity.class);
                 Bundle bundle = new Bundle();
+                bundle.putSerializable("bean", bean);
                 bundle.putInt("type", QueryType.COLLECTIONS_TYPE);
                 bundle.putString("name", bean.getTitle());
                 bundle.putString("img", bean.getCover_url());
@@ -126,11 +129,6 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
             showLoadErrorView("没有收藏");
         }
     }
-
-//    @OnClick(R.id.add)
-//    public void addUserTag() {
-//        addTags();
-//    }
 
     /**
      * 添加标签
@@ -184,6 +182,15 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     }
 
     @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventState eventState) {
+        if (eventState.getState() == 1 && list.size() > 0) {
+            mTagsAdapter.setNewData(new ArrayList<>());
+            loadData();
+        }
+    }
+
+    @Override
     public void showLoadingView() {
 
     }
@@ -210,14 +217,5 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
         loading.setVisibility(View.GONE);
         this.list = list;
         mTagsAdapter.setNewData(this.list);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.add:
-                Toast.makeText(getActivity(), "??", Toast.LENGTH_SHORT);
-                break;
-        }
     }
 }

@@ -9,9 +9,9 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import java.util.HashMap;
 
-import pl.avgle.videos.main.view.FavoriteChannelFragment;
-import pl.avgle.videos.main.view.FavoriteTagsFragment;
-import pl.avgle.videos.main.view.FavoriteVideosFragment;
+import pl.avgle.videos.main.view.fragment.FavoriteChannelFragment;
+import pl.avgle.videos.main.view.fragment.FavoriteTagsFragment;
+import pl.avgle.videos.main.view.fragment.FavoriteVideosFragment;
 
 public class FavoriteFragmentAdapter extends FragmentStatePagerAdapter {
     private int num;

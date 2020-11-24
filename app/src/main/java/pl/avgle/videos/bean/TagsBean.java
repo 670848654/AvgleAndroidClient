@@ -1,5 +1,6 @@
 package pl.avgle.videos.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class TagsBean {
@@ -83,7 +84,7 @@ public class TagsBean {
             this.collections = collections;
         }
 
-        public static class CollectionsBean {
+        public static class CollectionsBean implements Serializable {
             /**
              * id : 1
              * title : 三上悠亜
@@ -101,6 +102,7 @@ public class TagsBean {
             private int total_views;
             private int video_count;
             private String collection_url;
+            private boolean isFavorite;
 
             public String getId() {
                 return id;
@@ -156,6 +158,14 @@ public class TagsBean {
 
             public void setCollection_url(String collection_url) {
                 this.collection_url = collection_url;
+            }
+
+            public boolean isFavorite() {
+                return isFavorite;
+            }
+
+            public void setFavorite(boolean favorite) {
+                isFavorite = favorite;
             }
         }
     }

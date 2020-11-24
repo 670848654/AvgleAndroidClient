@@ -28,7 +28,7 @@ import java.util.Date;
 
 import pl.avgle.videos.BuildConfig;
 import pl.avgle.videos.R;
-import pl.avgle.videos.main.view.VideosActivity;
+import pl.avgle.videos.main.view.activity.VideosActivity;
 
 public class Utils {
 

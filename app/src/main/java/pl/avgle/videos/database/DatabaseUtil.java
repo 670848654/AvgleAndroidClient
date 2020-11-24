@@ -102,6 +102,21 @@ public class DatabaseUtil {
     }
 
     /**
+     * 查询所有收藏的频道CHID
+     *
+     * @return
+     */
+    public static List<String> queryAllChannelCHID() {
+        List<String> list = new ArrayList<>();
+        Cursor c = db.rawQuery("select * from f_channel order by id desc", null);
+        while (c.moveToNext()) {
+            list.add(c.getString(1));
+        }
+        c.close();
+        return list;
+    }
+
+    /**
      * 添加标签
      *
      * @param bean
@@ -168,6 +183,36 @@ public class DatabaseUtil {
     }
 
     /**
+     * 查询所有收藏的标签ID
+     *
+     * @return
+     */
+    public static List<String> queryAllTagIds() {
+        List<String> list = new ArrayList<>();
+        Cursor c = db.rawQuery("select * from f_tags order by id desc", null);
+        while (c.moveToNext()) {
+            list.add(c.getString(1));
+        }
+        c.close();
+        return list;
+    }
+
+    /**
+     * 查询所有收藏的标签TITLE
+     *
+     * @return
+     */
+    public static List<String> queryAllTagTitles() {
+        List<String> list = new ArrayList<>();
+        Cursor c = db.rawQuery("select * from f_tags order by id desc", null);
+        while (c.moveToNext()) {
+            list.add(c.getString(2));
+        }
+        c.close();
+        return list;
+    }
+
+    /**
      * 添加视频
      *
      * @param bean
@@ -204,7 +249,7 @@ public class DatabaseUtil {
     }
 
     /**
-     * 判断标签是否存在
+     * 判断视频是否存在
      *
      * @param vid
      * @return
@@ -247,6 +292,21 @@ public class DatabaseUtil {
             bean.setPreview_url(c.getString(15));
             bean.setPreview_video_url(c.getString(16));
             list.add(bean);
+        }
+        c.close();
+        return list;
+    }
+
+    /**
+     * 查询所有收藏的视频VID
+     *
+     * @return
+     */
+    public static List<String> queryAllVideoVIDs() {
+        List<String> list = new ArrayList<>();
+        Cursor c = db.rawQuery("select * from f_videos order by id desc", null);
+        while (c.moveToNext()) {
+            list.add(c.getString(1));
         }
         c.close();
         return list;

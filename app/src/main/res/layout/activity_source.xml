@@ -10,7 +10,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".main.view.OpenSourceActivity">
+        tools:context=".main.view.activity.OpenSourceActivity">
 
         <include layout="@layout/app_bar_toolbar" />
 

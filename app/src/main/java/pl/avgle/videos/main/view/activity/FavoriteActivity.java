@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,7 @@ import pl.avgle.videos.main.base.BaseActivity;
 import pl.avgle.videos.main.base.Presenter;
 import pl.avgle.videos.util.Utils;
 
-public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
+public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageChangeListener{
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.tab)
@@ -82,14 +82,6 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
         tab.getTabAt(0).select();
         tab.setSelectedTabIndicatorColor(getResources().getColor(R.color.pink600));
         favoriteFragmentAdapter = new FavoriteFragmentAdapter(getSupportFragmentManager(), tab.getTabCount());
-/*        try {
-            Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
-            field.setAccessible(true);
-            field.set(viewpager, 0);
-        } catch (Exception e) {
-            viewpager.setCurrentItem(0);
-            e.printStackTrace();
-        }*/
         viewpager.setAdapter(favoriteFragmentAdapter);
         for (int i = 0; i < tabs.length; i++) {
             tab.getTabAt(i).setText(tabs[i]);

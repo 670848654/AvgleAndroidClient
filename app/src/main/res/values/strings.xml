@@ -31,6 +31,7 @@
     </string-array>
 
     <string name="favorite_success">已加入收藏夹</string>
+    <string name="remove_favorite_success">已移出收藏夹</string>
     <string name="channel_is_exist">该频道已经收藏过了</string>
 
     <string name="tag_title">标签</string>
@@ -51,6 +52,8 @@
     <string name="favorite_video_empty_error">无相关视频</string>
     <string name="empty_channel">收藏为空</string>
 
+    <string name="github">给我点个赞~</string>
+    <string name="github_url">https://github.com/670848654/AvgleAndroidClient</string>
     <string name="now_version">当前版本</string>
     <string name="open_source_library">开源相关</string>
     <string name="add">添加</string>
@@ -70,7 +73,7 @@
     <string name="videos_long">收藏的视频</string>
     <string name="videos_short">收藏的视频</string>
     <string name="final_compile">最后编译</string>
-    <string name="final_compile_time">2020年11月19日</string>
+    <string name="final_compile_time">2020年11月24日</string>
 
     <string name="disableMsg">不可用</string>
     <string name="favoriteShortName">收藏夹</string>

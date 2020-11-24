@@ -1,5 +1,6 @@
 package pl.avgle.videos.adapter;
 
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.cardview.widget.CardView;
@@ -25,6 +26,11 @@ public class TagsAdapter extends BaseQuickAdapter<TagsBean.ResponseBean.Collecti
     protected void convert(BaseViewHolder helper, TagsBean.ResponseBean.CollectionsBean item) {
         helper.getView(R.id.item_view).setLayoutParams(new CardView.LayoutParams(CardView.LayoutParams.MATCH_PARENT,
                 Utils.getChannelTagHeight()));
+        ImageView favoriteView = helper.getView(R.id.favorite_view);
+        if (item.isFavorite())
+            favoriteView.setVisibility(View.VISIBLE);
+        else
+            favoriteView.setVisibility(View.GONE);
         if (!item.getCover_url().equals("")) {
             ImageLoader.getInstance().displayImage(item.getCover_url(), (ImageView) helper.getView(R.id.collectionsImg), ImageConfig.getSimpleOptions());
             helper.setVisible(R.id.custom_tag, false);

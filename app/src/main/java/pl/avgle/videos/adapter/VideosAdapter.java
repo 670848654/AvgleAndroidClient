@@ -24,6 +24,11 @@ public class VideosAdapter extends BaseQuickAdapter<VideoBean.ResponseBean.Video
     @Override
     protected void convert(BaseViewHolder helper, VideoBean.ResponseBean.VideosBean item) {
         ImageLoader.getInstance().displayImage(item.getPreview_url(), (ImageView) helper.getView(R.id.videos_img), ImageConfig.getSimpleOptions());
+        ImageView favoriteView = helper.getView(R.id.favorite_view);
+        if (item.isFavorite())
+            favoriteView.setVisibility(View.VISIBLE);
+        else
+            favoriteView.setVisibility(View.GONE);
         helper.getView(R.id.player).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 Utils.getVideoItemHeight()));
         helper.getView(R.id.img_view).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,

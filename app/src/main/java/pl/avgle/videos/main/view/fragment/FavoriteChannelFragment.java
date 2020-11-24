@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.fragment;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -11,7 +11,9 @@ import android.widget.ProgressBar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +23,14 @@ import butterknife.ButterKnife;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.ChannelAdapter;
 import pl.avgle.videos.bean.ChannelBean;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.LazyFragment;
 import pl.avgle.videos.main.contract.ChannelContract;
 import pl.avgle.videos.main.presenter.ChannelPresenter;
+import pl.avgle.videos.main.view.activity.VideosActivity;
 import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
@@ -63,7 +67,6 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
     public void initAdapter() {
         if (mChannelAdapter == null) {
             mChannelAdapter = new ChannelAdapter(list);
-            mChannelAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
             mChannelAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                 ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
                 switch (view.getId()) {
@@ -105,6 +108,7 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
      * 移除收藏
      */
     private void removeCollection(int position, String chid) {
+        EventBus.getDefault().post(new EventState(0));
         DatabaseUtil.deleteChannel(chid);
         mChannelAdapter.remove(position);
         if (list.size() == 0) {
@@ -116,6 +120,12 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
     @Override
     protected void loadData() {
         mPresenter.loadData();
+    }
+
+    @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventState eventState) {
+
     }
 
     @Override

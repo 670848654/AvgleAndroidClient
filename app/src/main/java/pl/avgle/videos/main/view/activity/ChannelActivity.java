@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -17,8 +19,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.navigation.NavigationView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +32,7 @@ import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.ChannelAdapter;
 import pl.avgle.videos.bean.ChannelBean;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.database.DatabaseUtil;
@@ -73,6 +79,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
 
     @Override
     protected void initData() {
+        EventBus.getDefault().register(this);
         initToolbar();
         initSwipe();
         initRvList();
@@ -103,7 +110,19 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         StatusBarUtil.setColorForDrawerLayout(this, drawer, getResources().getColor(R.color.pornhub), 0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+        drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        });
         toggle.syncState();
         int[][] states = new int[][]{
                 new int[]{-android.R.attr.state_checked},
@@ -115,7 +134,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         ColorStateList csl = new ColorStateList(states, colors);
         navigationView.setItemTextColor(csl);
         navigationView.setItemIconTintList(csl);
-        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -194,6 +212,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
+                    mSearchView.onActionViewCollapsed();
                     Utils.hideKeyboard(mSearchView);
                     mSearchView.clearFocus();
                     Intent intent = new Intent(ChannelActivity.this, VideosActivity.class);
@@ -243,7 +262,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
                     Utils.showHomeTimeDialog(this, QueryType.FEATURED_TYPE, "tr", "Featured Videos", bundle);
                     break;
                 case R.id.nav_favorite:
-                    startActivity(new Intent(this, FavoriteActivity.class));
+                    startActivityForResult(new Intent(this, FavoriteActivity.class), FAVORITE_REQUEST_CODE);
                     break;
                 case R.id.nav_about:
                     startActivity(new Intent(this, AboutActivity.class));
@@ -260,7 +279,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mChannelAdapter = new ChannelAdapter(list);
-        mChannelAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mChannelAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
             switch (view.getId()) {
@@ -278,13 +296,23 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             }
         });
         mChannelAdapter.setOnItemLongClickListener((adapter, view, position) -> {
+            ImageView favoriteView = view.findViewById(R.id.favorite_view);
             ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
             mBottomSheetDialogTitle.setText(bean.getName());
             selectBeanList = new ArrayList<>();
-            selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
+            if (bean.isFavorite())
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.remove_favorite), R.drawable.baseline_remove_white_48dp));
+            else
+                selectBeanList.add(new SelectBean(Utils.getString(R.string.add_favorite), R.drawable.baseline_add_white_48dp));
             selectAdapter.setNewData(selectBeanList);
             selectAdapter.setOnItemClickListener((selectAdapter, selectView, selectPosition) -> {
-                collectionChannel(bean);
+                if (bean.isFavorite()) {
+                    bean.setFavorite(false);
+                    removeCollection(favoriteView, bean);
+                } else {
+                    bean.setFavorite(true);
+                    collectionChannel(favoriteView, bean);
+                }
                 mBottomSheetDialog.dismiss();
             });
             mBottomSheetDialog.show();
@@ -298,18 +326,39 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
      *
      * @param bean
      */
-    public void collectionChannel(ChannelBean.ResponseBean.CategoriesBean bean) {
+    public void collectionChannel(ImageView favoriteView, ChannelBean.ResponseBean.CategoriesBean bean) {
         if (DatabaseUtil.checkChannel(bean.getCHID()))
             application.showToastMsg(Utils.getString(R.string.channel_is_exist));
         else {
             DatabaseUtil.addChannel(bean);
             application.showToastMsg(bean.getName() + "\n" + Utils.getString(R.string.favorite_success));
+            favoriteView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * 移除收藏
+     * @param favoriteView
+     * @param bean
+     */
+    private void removeCollection(ImageView favoriteView, ChannelBean.ResponseBean.CategoriesBean bean) {
+        DatabaseUtil.deleteChannel(bean.getCHID());
+        application.showToastMsg(bean.getName() + "\n" + Utils.getString(R.string.remove_favorite_success));
+        favoriteView.setVisibility(View.GONE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         DatabaseUtil.closeDB();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventState eventState) {
+        if (eventState.getState() == 0 && list.size() > 0) {
+            mChannelAdapter.setNewData(new ArrayList<>());
+            loadData();
+        }
     }
 }

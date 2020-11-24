@@ -20,7 +20,7 @@
         android:usesCleartextTraffic="true">
         <!-- 开始界面 -->
         <activity
-            android:name=".main.view.StartActivity"
+            android:name=".main.view.activity.StartActivity"
             android:label="@string/app_name"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait"
@@ -36,38 +36,37 @@
         </activity>
         <!-- 频道列表 -->
         <activity
-            android:name=".main.view.ChannelActivity"
+            android:name=".main.view.activity.ChannelActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 标签列表 -->
         <activity
-            android:name=".main.view.TagsActivity"
+            android:name=".main.view.activity.TagsActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait" />
         <!-- 视频列表 -->
         <activity
-            android:name=".main.view.VideosActivity"
+            android:name=".main.view.activity.VideosActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait" />
         <!-- 设置 -->
         <activity
-            android:name=".main.view.FavoriteActivity"
+            android:name=".main.view.activity.FavoriteActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait" />
         <!-- 关于 -->
         <activity
-            android:name=".main.view.AboutActivity"
+            android:name=".main.view.activity.AboutActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait" />
         <!-- 开源相关 -->
         <activity
-            android:name=".main.view.OpenSourceActivity"
+            android:name=".main.view.activity.OpenSourceActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-        <!-- 播放器 -->
         <!-- WebView -->
-        <activity android:name=".main.view.WebViewActivity"
+        <activity android:name=".main.view.activity.WebViewActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden"
             android:hardwareAccelerated="true"
             android:screenOrientation="sensorLandscape"

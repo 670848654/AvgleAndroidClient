@@ -20,8 +20,19 @@ public class ChannelModel implements ChannelContract.Model {
         service.getChannel().enqueue(new Callback<ChannelBean>() {
             @Override
             public void onResponse(Call<ChannelBean> call, Response<ChannelBean> response) {
-                if (response.isSuccessful())
-                    callBack.success(response.body());
+                if (response.isSuccessful()) {
+                    ChannelBean channelBeans = response.body();
+                    List<String> userFavorites = DatabaseUtil.queryAllChannelCHID();
+                    if (userFavorites.size() > 0) {
+                        for (ChannelBean.ResponseBean.CategoriesBean categoriesBean : channelBeans.getResponse().getCategories()) {
+                            if (userFavorites.contains(categoriesBean.getCHID()))
+                                categoriesBean.setFavorite(true);
+                            else
+                                categoriesBean.setFavorite(false);
+                        }
+                    }
+                    callBack.success(channelBeans);
+                }
                 else {
                     try {
                         callBack.error(response.errorBody().string());

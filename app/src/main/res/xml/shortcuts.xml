@@ -11,7 +11,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="pl.avgle.videos"
-            android:targetClass="pl.avgle.videos.main.view.FavoriteActivity" />
+            android:targetClass="pl.avgle.videos.main.view.activity.FavoriteActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

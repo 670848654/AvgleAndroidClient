@@ -32,6 +32,7 @@ import pl.avgle.videos.util.Utils;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public abstract class BaseActivity<V, P extends Presenter<V>> extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+    protected static final int FAVORITE_REQUEST_CODE = 0x10;
     protected P mPresenter;
     protected View errorView, emptyView;
     protected TextView errorTitle;

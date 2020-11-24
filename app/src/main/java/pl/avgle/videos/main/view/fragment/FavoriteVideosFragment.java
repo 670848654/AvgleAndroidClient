@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,10 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.VideosAdapter;
+import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.VideoBean;
 import pl.avgle.videos.config.QueryType;
@@ -36,6 +39,8 @@ import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.LazyFragment;
 import pl.avgle.videos.main.contract.VideoContract;
 import pl.avgle.videos.main.presenter.VideoPresenter;
+import pl.avgle.videos.main.view.activity.VideosActivity;
+import pl.avgle.videos.main.view.activity.WebViewActivity;
 import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
@@ -104,7 +109,6 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void initAdapter() {
         if (mVideosAdapter == null) {
             mVideosAdapter = new VideosAdapter(list);
-            mVideosAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
             mVideosAdapter.bindToRecyclerView(mRecyclerView);
             mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
                 @Override
@@ -242,6 +246,15 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     @Override
     protected void loadData() {
         mPresenter.loadData();
+    }
+
+    @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventState eventState) {
+        if (eventState.getState() == 2 && list.size() > 0) {
+            mVideosAdapter.setNewData(new ArrayList<>());
+            loadData();
+        }
     }
 
     @Override

@@ -20,8 +20,19 @@ public class VideosModel implements VideoContract.Model {
         service.getChannelVideos(page, CHID, limit, order).enqueue(new Callback<VideoBean>() {
             @Override
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
-                if (response.isSuccessful())
+                if (response.isSuccessful()) {
+                    VideoBean videoBean = response.body();
+                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
+                    if (userFavorites.size() > 0) {
+                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                            if (userFavorites.contains(videosBean.getVid()))
+                                videosBean.setFavorite(true);
+                            else
+                                videosBean.setFavorite(false);
+                        }
+                    }
                     callBack.success(response.body(), isLoad);
+                }
                 else
                     try {
                         callBack.error(response.errorBody().string());
@@ -42,8 +53,19 @@ public class VideosModel implements VideoContract.Model {
         service.getTagsSearchVideos(title, page, limit, order).enqueue(new Callback<VideoBean>() {
             @Override
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
-                if (response.isSuccessful())
+                if (response.isSuccessful()) {
+                    VideoBean videoBean = response.body();
+                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
+                    if (userFavorites.size() > 0) {
+                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                            if (userFavorites.contains(videosBean.getVid()))
+                                videosBean.setFavorite(true);
+                            else
+                                videosBean.setFavorite(false);
+                        }
+                    }
                     callBack.success(response.body(), isLoad);
+                }
                 else
                     try {
                         callBack.error(response.errorBody().string());
@@ -64,8 +86,19 @@ public class VideosModel implements VideoContract.Model {
         service.getOtherVideos(page, order, time, limit).enqueue(new Callback<VideoBean>() {
             @Override
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
-                if (response.isSuccessful())
+                if (response.isSuccessful()) {
+                    VideoBean videoBean = response.body();
+                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
+                    if (userFavorites.size() > 0) {
+                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                            if (userFavorites.contains(videosBean.getVid()))
+                                videosBean.setFavorite(true);
+                            else
+                                videosBean.setFavorite(false);
+                        }
+                    }
                     callBack.success(response.body(), isLoad);
+                }
                 else
                     try {
                         callBack.error(response.errorBody().string());

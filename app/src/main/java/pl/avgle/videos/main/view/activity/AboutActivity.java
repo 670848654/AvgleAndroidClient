@@ -1,4 +1,4 @@
-package pl.avgle.videos.main.view;
+package pl.avgle.videos.main.view.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -94,7 +94,7 @@ public class AboutActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick({R.id.avgle, R.id.check_update})
+    @OnClick({R.id.avgle, R.id.check_update, R.id.github})
     public void openBrowser(RelativeLayout relativeLayout) {
         switch (relativeLayout.getId()) {
             case R.id.avgle:
@@ -143,6 +143,9 @@ public class AboutActivity extends BaseActivity {
                         }
                     }
                 }), 1000);
+                break;
+            case R.id.github:
+                Utils.openBrowser(this, Utils.getString(R.string.github_url));
                 break;
         }
     }

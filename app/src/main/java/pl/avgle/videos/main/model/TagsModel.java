@@ -20,8 +20,19 @@ public class TagsModel implements TagsContract.Model {
         service.getTags(page, limit).enqueue(new Callback<TagsBean>() {
             @Override
             public void onResponse(Call<TagsBean> call, Response<TagsBean> response) {
-                if (response.isSuccessful())
+                if (response.isSuccessful()) {
+                    TagsBean tagsBean = response.body();
+                    List<String> userFavorites = DatabaseUtil.queryAllTagIds();
+                    if (userFavorites.size() > 0) {
+                        for (TagsBean.ResponseBean.CollectionsBean collectionsBean : tagsBean.getResponse().getCollections()) {
+                            if (userFavorites.contains(collectionsBean.getId()))
+                                collectionsBean.setFavorite(true);
+                            else
+                                collectionsBean.setFavorite(false);
+                        }
+                    }
                     callBack.success(response.body(), isLoad);
+                }
                 else
                     try {
                         callBack.error(response.errorBody().string());
