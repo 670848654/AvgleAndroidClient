@@ -3,11 +3,13 @@ package pl.avgle.videos.main.model;
 import java.io.IOException;
 import java.util.List;
 
+import pl.avgle.videos.R;
 import pl.avgle.videos.api.AvgleService;
 import pl.avgle.videos.bean.TagsBean;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.contract.TagsContract;
 import pl.avgle.videos.util.RetrofitUtils;
+import pl.avgle.videos.util.Utils;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,7 +33,7 @@ public class TagsModel implements TagsContract.Model {
                                 collectionsBean.setFavorite(false);
                         }
                     }
-                    callBack.success(response.body(), isLoad);
+                    callBack.success(tagsBean, isLoad);
                 }
                 else
                     try {
@@ -54,6 +56,6 @@ public class TagsModel implements TagsContract.Model {
         if (list.size() > 0)
             callBack.userTagsSuccess(list);
         else
-            callBack.error("收藏为空");
+            callBack.error(Utils.getString(R.string.empty_channel));
     }
 }

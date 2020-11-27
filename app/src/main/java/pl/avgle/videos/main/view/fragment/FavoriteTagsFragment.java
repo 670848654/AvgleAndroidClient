@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
@@ -126,7 +127,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
         mTagsAdapter.remove(position);
         if (list.size() == 0) {
             mTagsAdapter.setNewData(list);
-            showLoadErrorView("没有收藏");
+            showLoadErrorView(Utils.getString(R.string.empty_channel));
         }
     }
 

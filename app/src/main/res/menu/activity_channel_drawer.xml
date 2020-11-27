@@ -9,22 +9,22 @@
         <item
             android:id="@+id/nav_tags"
             android:icon="@drawable/baseline_local_offer_white_48dp"
-            android:title="标签" />
+            android:title="@string/tag_title" />
         <!-- 最新上传视频 -->
         <item
             android:id="@+id/nav_new"
             android:icon="@drawable/baseline_fiber_new_white_48dp"
-            android:title="最新视频" />
+            android:title="@string/latest" />
         <!-- 最热门视频 -->
         <item
             android:id="@+id/nav_hot"
             android:icon="@drawable/baseline_whatshot_white_48dp"
-            android:title="热门视频" />
+            android:title="@string/hot" />
         <!-- 推荐视频 -->
         <item
             android:id="@+id/nav_featured"
             android:icon="@drawable/baseline_thumb_up_white_48dp"
-            android:title="推荐视频" />
+            android:title="@string/recommend" />
     </group>
     <!-- 收藏夹 -->
     <group
@@ -33,7 +33,7 @@
         <item
             android:id="@+id/nav_favorite"
             android:icon="@drawable/baseline_star_white_48dp"
-            android:title="收藏夹" />
+            android:title="@string/favorite_title" />
     </group>
     <!-- 关于 -->
     <group
@@ -42,6 +42,6 @@
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/baseline_android_white_48dp"
-            android:title="关于" />
+            android:title="@string/about_title" />
     </group>
 </menu>

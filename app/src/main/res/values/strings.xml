@@ -10,6 +10,8 @@
 
     <string name="data_loading">玩命加载中...</string>
     <string name="data_load_failed">数据加载失败，点击重试</string>
+    <string name="api_error">接口返回出错</string>
+    <string name="no_data">接口没有返回任何数据</string>
 
     <string name="about_title">关于</string>
 
@@ -35,12 +37,16 @@
     <string name="channel_is_exist">该频道已经收藏过了</string>
 
     <string name="tag_title">标签</string>
+    <string name="latest">最新视频</string>
+    <string name="hot">热门视频</string>
+    <string name="recommend">推荐视频</string>
 
     <string name="favorite_title">收藏夹</string>
+    <string name="favorite_tag_dialog_enter">请输入标签</string>
     <string name="favorite_tag_dialog_title">自定义标签</string>
     <string name="favorite_tag_dialog_positive">添加</string>
     <string name="favorite_tag_dialog_negative">取消</string>
-    <string name="favorite_tag_dialog_error">参数不能为空~</string>
+    <string name="favorite_tag_dialog_error">参数不能为空</string>
 
     <string name="tag_is_exist">该标签已经收藏过了</string>
 
@@ -93,4 +99,7 @@
     <string name="find_new_version">发现新版本</string>
     <string name="update_now">现在更新</string>
     <string name="update_after">暂不更新</string>
+
+    <string name="select_a_browser">请选择浏览器</string>
+    <string name="browser_not_found">没有找到匹配的程序</string>
 </resources>

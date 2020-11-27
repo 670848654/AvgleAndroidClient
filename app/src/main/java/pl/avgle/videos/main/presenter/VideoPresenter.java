@@ -2,12 +2,14 @@ package pl.avgle.videos.main.presenter;
 
 import java.util.List;
 
+import pl.avgle.videos.R;
 import pl.avgle.videos.bean.VideoBean;
 import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.main.base.BasePresenter;
 import pl.avgle.videos.main.base.Presenter;
 import pl.avgle.videos.main.contract.VideoContract;
 import pl.avgle.videos.main.model.VideosModel;
+import pl.avgle.videos.util.Utils;
 
 public class VideoPresenter extends Presenter<VideoContract.View> implements BasePresenter, VideoContract.LoadDataCallBack {
     private VideoContract.View view;
@@ -75,17 +77,17 @@ public class VideoPresenter extends Presenter<VideoContract.View> implements Bas
 
     @Override
     public void userEmpty() {
-        view.showLoadErrorView("收藏为空");
+        view.showLoadErrorView(Utils.getString(R.string.empty_channel));
     }
 
     @Override
     public void success(VideoBean bean, boolean isLoad) {
         if (!bean.isSuccess())
-            view.showLoadErrorView("接口返回出错");
+            view.showLoadErrorView(Utils.getString(R.string.api_error));
         else if (bean.getResponse().getVideos().size() > 0)
             view.showLoadSuccessView(bean, isLoad);
         else
-            view.showLoadErrorView("接口没有返回任何数据");
+            view.showLoadErrorView(Utils.getString(R.string.no_data));
     }
 
     @Override

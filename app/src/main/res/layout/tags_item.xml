@@ -60,7 +60,7 @@
             android:background="@drawable/video_fps"
             android:gravity="center"
             android:visibility="gone"
-            android:text="自定义Tag" />
+            android:text="@string/favorite_tag_dialog_title" />
 
         <TextView
             android:id="@+id/centerPop"

@@ -136,9 +136,9 @@ public class Utils {
         intent.setData(Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent.resolveActivity(context.getPackageManager()) != null) {
-            context.startActivity(Intent.createChooser(intent, "请选择浏览器"));
+            context.startActivity(Intent.createChooser(intent, getString(R.string.select_a_browser)));
         } else {
-            Toast.makeText(context.getApplicationContext(), "没有找到匹配的程序", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(), getString(R.string.browser_not_found), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -153,7 +153,6 @@ public class Utils {
         int i = Integer.parseInt(time);
         String times = sdr.format(new Date(i * 1000L));
         return times;
-
     }
 
     /**

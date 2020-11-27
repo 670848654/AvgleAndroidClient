@@ -229,7 +229,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         DatabaseUtil.deleteVideo(vid);
         if (list.size() == 0 && searchList.size() == 0) {
             mVideosAdapter.setNewData(list);
-            showLoadErrorView("收藏为空");
+            showLoadErrorView(Utils.getString(R.string.empty_channel));
         } else if (searchList.size() == 0) {
             errorTitle.setText(Utils.getString(R.string.favorite_video_empty_error));
             mVideosAdapter.setEmptyView(errorView);

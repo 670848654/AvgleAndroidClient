@@ -113,7 +113,7 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
         mChannelAdapter.remove(position);
         if (list.size() == 0) {
             mChannelAdapter.setNewData(list);
-            showLoadErrorView("收藏为空");
+            showLoadErrorView(Utils.getString(R.string.empty_channel));
         }
     }
 

@@ -31,7 +31,7 @@ public class VideosModel implements VideoContract.Model {
                                 videosBean.setFavorite(false);
                         }
                     }
-                    callBack.success(response.body(), isLoad);
+                    callBack.success(videoBean, isLoad);
                 }
                 else
                     try {
@@ -64,7 +64,7 @@ public class VideosModel implements VideoContract.Model {
                                 videosBean.setFavorite(false);
                         }
                     }
-                    callBack.success(response.body(), isLoad);
+                    callBack.success(videoBean, isLoad);
                 }
                 else
                     try {
@@ -97,7 +97,7 @@ public class VideosModel implements VideoContract.Model {
                                 videosBean.setFavorite(false);
                         }
                     }
-                    callBack.success(response.body(), isLoad);
+                    callBack.success(videoBean, isLoad);
                 }
                 else
                     try {
