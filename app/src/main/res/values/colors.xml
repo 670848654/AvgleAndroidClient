@@ -275,34 +275,38 @@
     <color name="bluegrey800">#37474f</color>
     <color name="bluegrey900">#263238</color>
 
-    <color name="pornhub">#f90</color>
-    <color name="colorPrimary">#FFF</color>
-    <color name="colorPrimaryDark">#bdbdbd</color>
-    <color name="colorAccent">#ff4081</color>
-    <color name="toolbar_color">#000000</color>
-    <color name="tabTextColor">#000000</color>
+    <color name="default_line_color">#e0e0e0</color>
+    <color name="dark_bg">#303030</color>
+    <color name="default_text_color">#8C8C8C</color>
+    <color name="rvlist_item_text_color">#FFFFFF</color>
+    <color name="toolbar_color">#f90</color>
+    <color name="toolbar_text_color">#FFFFFF</color>
     <color name="tabSelectedTextColor">#ff4081</color>
-    <color name="navigationview_bg_color">#FFF</color>
-    <color name="window_bg">#FFF</color>
-    <color name="toolbar_layout_bg">#bdbdbd</color>
-    <color name="item_stroke">#F2F2F2</color>
-    <color name="text_color_primary">#000</color>
-    <color name="item_selected_color">#FFF</color>
-    <color name="jd_bg">#000</color>
-    <color name="white">#FFF</color>
-    <color name="head">#666666</color>
+    <color name="tabTextColor">#FFFFFF</color>
+    <color name="alert_bg_color">#FFFFFF</color>
+    <color name="alert_text_color">#000000</color>
+    <color name="navigationview_bg_color">#FFFFFF</color>
+    <color name="text_color_primary">#000000</color>
+    <color name="pornhub">#f90</color>
 
-    <color name="color_light_blue">#00DDB6</color>
-    <color name="txt_color">#48495F</color>
-    <color name="item_bg">#FFFFFF</color>
-    <color name="bg">#F0F0F0</color>
-    <color name="spinner_bg">#333244</color>
-    <color name="new_text_color">#555771</color>
-    <color name="white_text_color">#F0F0F0</color>
-    <color name="gray_color">#4b4b58</color>
-    <color name="hard_color">#48495f</color>
-    <color name="clickspan_color">#00ddb6</color>
-    <color name="dull_blue">#3B4BBF</color>
-    <color name="ref">#303030</color>
+    <color name="colorPrimary">#f90</color>
+    <color name="colorPrimaryDark">#f90</color>
+    <color name="colorAccent">#fb8c00</color>
+
+    <color name="window_bg">#FFF</color>
     <color name="transparent">#424242</color>
+
+    <color name="webview_bg_color">#303030</color>
+
+    <color name="light_toolbar_color">#f90</color>
+    <color name="light_window_color">#FFFFFF</color>
+    <color name="light_navigation_color">#FFFFFF</color>
+    <color name="light_navigation_text_color">#000000</color>
+    <color name="light_navigation_tini_color">#f90</color>
+
+    <color name="dark_toolbar_color">#303030</color>
+    <color name="dark_window_color">#303030</color>
+    <color name="dark_navigation_color">#303030</color>
+    <color name="dark_navigation_text_color">#FFFFFF</color>
+    <color name="dark_navigation_tini_color">#f90</color>
 </resources>

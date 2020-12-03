@@ -1,6 +1,7 @@
 package pl.avgle.videos.main.view.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -24,6 +26,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -67,10 +70,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     private List<VideoBean.ResponseBean.VideosBean> list = new ArrayList<>();
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    //每页显示多少数量
-    private int limit = 50;
-    //页数
-    private int nowPage = 0;
     //activity传递的参数
     private int type = QueryType.DEFAULT;
     private String toolbarTitle = "";
@@ -78,16 +77,11 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     private int cid = 0;
     private String time = "";
     private String img;
-    @BindView(R.id.title_img)
-    ImageView imageView;
+    @BindView(R.id.header_img)
+    ImageView headerImg;
     @BindView(R.id.collaps_toolbar_layout)
     CollapsingToolbarLayout st;
     private boolean isLoading;
-    //是否是第一次加载
-    private boolean isLoad = false;
-    //是否有更更多
-    private boolean hasMore = true;
-    private boolean isErr = true;
     private SearchView mSearchView;
 
     private JZPlayer player;
@@ -99,8 +93,11 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     private TagsBean.ResponseBean.CollectionsBean tagsBean;
     private List<String> userTags;
-    private MenuItem favorteItem;
+    private MenuItem favoriteItem;
     private boolean tagIsFavorite = false;
+
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
 
     @Override
     public void complete() {
@@ -142,7 +139,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         initToolbar();
         initSwipe();
         initAdapter();
-        initImgs();
+        setHeaderImg();
         initOrderDialog();
     }
 
@@ -161,12 +158,13 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     }
 
     public void initToolbar() {
-        appBarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                Utils.getActivityAppBarLayoutHeight()));
         st.setTitle(toolbarTitle);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(view -> supportFinishAfterTransition());
+        toolbar.setNavigationOnClickListener(view -> {
+            if (isPortrait) supportFinishAfterTransition();
+            else finish();
+        });
     }
 
     public void initSwipe() {
@@ -181,17 +179,17 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     }
 
     public void initAdapter() {
+        if (!isPortrait) appBarLayout.setExpanded(false, false);
+        else appBarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                Utils.getActivityAppBarLayoutHeight()));
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mVideosAdapter = new VideosAdapter(list);
         mVideosAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
-            public void onChildViewAttachedToWindow(@NonNull View view) {
-
-            }
+            public void onChildViewAttachedToWindow(@NonNull View view) {}
 
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) {
@@ -251,6 +249,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 }
                 mBottomSheetDialog.dismiss();
             });
+            mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
             mBottomSheetDialog.show();
         });
         mVideosAdapter.setLoadMoreView(new CustomLoadMoreView());
@@ -276,19 +275,19 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         mRecyclerView.setAdapter(mVideosAdapter);
     }
 
-    public void initImgs() {
+    public void setHeaderImg() {
         switch (type) {
             case QueryType.CHANNEL_TYPE:
-                ImageLoader.getInstance().displayImage(img, imageView, getSimpleOptions());
+                ImageLoader.getInstance().displayImage(img, headerImg, getSimpleOptions());
                 break;
             case QueryType.COLLECTIONS_TYPE:
                 if (!img.equals(""))
-                    ImageLoader.getInstance().displayImage(img, imageView, getSimpleOptions());
+                    ImageLoader.getInstance().displayImage(img, headerImg, getSimpleOptions());
                 else
-                    imageView.setImageDrawable(getDrawable(R.drawable.default_image));
+                    headerImg.setImageDrawable(getDrawable(R.drawable.default_image));
                 break;
             default:
-                imageView.setImageDrawable(getDrawable(R.drawable.default_image));
+                    headerImg.setImageDrawable(getDrawable(R.drawable.default_image));
                 break;
         }
     }
@@ -349,14 +348,14 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                     userTags = DatabaseUtil.queryAllTagTitles();
                     if (userTags.contains(toolbarTitle)) {
                         tagIsFavorite = true;
-                        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
-                        favorteItem.setTitle(Utils.getString(R.string.remove_favorite));
+                        favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
+                        favoriteItem.setTitle(Utils.getString(R.string.remove_favorite));
                     } else {
                         tagIsFavorite = false;
-                        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
-                        favorteItem.setTitle(Utils.getString(R.string.add_favorite));
+                        favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
+                        favoriteItem.setTitle(Utils.getString(R.string.add_favorite));
                     }
-                    favorteItem.setVisible(true);
+                    favoriteItem.setVisible(true);
                 }
                 hasMore = bean.getResponse().isHas_more();
                 setLoadState(true);
@@ -367,6 +366,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 if (!isLoad) {
                     list = data;
                     mVideosAdapter.setNewData(list);
+                    if (isPortrait) setPortrait();
+                    else setLandscape();
                 } else
                     mVideosAdapter.addData(data);
             }
@@ -374,13 +375,14 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     }
 
     public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
+        Jzvd.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
         hdView.setVisibility(View.GONE);
         hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
         player.titleTextView.setVisibility(View.GONE);
         player.bottomProgressBar.setVisibility(View.GONE);
-        player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_NORMAL);
+        player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_LIST);
         Bitmap bitmap = ImageLoader.getInstance().loadImageSync(bean.getPreview_url());
         if (null != bitmap)
             Blurry.with(this)
@@ -409,6 +411,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     public void removePlayerView(JZPlayer player) {
         player.releaseAllVideos();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         player.setVisibility(View.GONE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
         hdView.setVisibility(View.VISIBLE);
@@ -419,8 +422,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.videos_menu, menu);
         MenuItem item = menu.findItem(R.id.order);
-        favorteItem = menu.findItem(R.id.favorite);
-        favorteItem.setVisible(false);
+        favoriteItem = menu.findItem(R.id.favorite);
+        favoriteItem.setVisible(false);
         if (type == QueryType.DEFAULT || type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE) {
             item.setVisible(false);
         }
@@ -440,7 +443,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                     type = QueryType.QUERY_TYPE;
                     mVideosAdapter.setNewData(list = new ArrayList<>());
                     tagsBean = null;
-                    favorteItem.setVisible(false);
+                    favoriteItem.setVisible(false);
                     isLoad = false;
                     nowPage = 0;
                     mPresenter = createPresenter();
@@ -469,9 +472,11 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 break;
             case R.id.order:
                 if (isLoading)
-                    Toast.makeText(this, "请在数据加载完成后再操作！", Toast.LENGTH_SHORT).show();
-                else
+                    Toast.makeText(this, Utils.getString(R.string.do_not_operate), Toast.LENGTH_SHORT).show();
+                else {
+                    mOrderDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
                     mOrderDialog.show();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -485,6 +490,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     public void showErrorView(String text) {
         mSwipe.setRefreshing(false);
         errorTitle.setText(text);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         mVideosAdapter.setEmptyView(errorView);
     }
 
@@ -558,6 +564,35 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     }
 
     @Override
+    protected void setLandscape() {
+        setAppBarLayout(false);
+        if (gridLayoutManager != null)
+            position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        appBarLayout.setExpanded(false, false);
+        gridLayoutManager = new GridLayoutManager(this, 4);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
+    }
+
+    @Override
+    protected void setPortrait() {
+        setAppBarLayout(true);
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        if (position > 3)
+            appBarLayout.setExpanded(false, false);
+        gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 2 : 1);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
+    }
+
+    private void setAppBarLayout(boolean nestedScrollingEnabled) {
+        appBarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                Utils.getActivityAppBarLayoutHeight()));
+        mRecyclerView.setNestedScrollingEnabled(nestedScrollingEnabled);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (player != null)
@@ -571,8 +606,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         DatabaseUtil.deleteTag(title);
         tagIsFavorite = false;
         application.showToastMsg(title + "\n" + Utils.getString(R.string.remove_favorite_success));
-        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
-        favorteItem.setTitle(Utils.getString(R.string.add_favorite));
+        favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
+        favoriteItem.setTitle(Utils.getString(R.string.add_favorite));
         EventBus.getDefault().post(new EventState(1));
     }
 
@@ -586,7 +621,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             TagsBean.ResponseBean.CollectionsBean bean = new TagsBean.ResponseBean.CollectionsBean();
             bean.setId(UUID.randomUUID().toString());
             bean.setTitle(title);
-            bean.setKeyword("自定义");
+            bean.setKeyword(Utils.getString(R.string.favorite_tag_dialog_title));
             bean.setCover_url("");
             bean.setTotal_views(0);
             bean.setVideo_count(0);
@@ -595,8 +630,8 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         }
         tagIsFavorite = true;
         application.showToastMsg(title + "\n" + Utils.getString(R.string.favorite_success));
-        favorteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
-        favorteItem.setTitle(Utils.getString(R.string.remove_favorite));
+        favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
+        favoriteItem.setTitle(Utils.getString(R.string.remove_favorite));
         EventBus.getDefault().post(new EventState(1));
     }
 }

@@ -10,6 +10,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.FavoriteFragmentAdapter;
@@ -27,7 +29,7 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
     @BindView(R.id.viewpager)
     ViewPager viewpager;
     private FavoriteFragmentAdapter favoriteFragmentAdapter;
-    private String[] tabs = Utils.getArray(R.array.favorite_arr);
+    private String[] tabTitleArr = Utils.getArray(R.array.favorite_arr);
 
     @Override
     protected void initBeforeView() {
@@ -56,6 +58,12 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
         initFragment();
     }
 
+    @Override
+    protected void setLandscape() {}
+
+    @Override
+    protected void setPortrait() {}
+
     private void initToolbar() {
         toolbar.setTitle(getResources().getString(R.string.favorite_title));
         setSupportActionBar(toolbar);
@@ -75,17 +83,15 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
     }
 
     private void initFragment() {
-        for (String title : tabs) {
-            tab.addTab(tab.newTab());
-        }
+        tab.addTab(tab.newTab());
+        tab.addTab(tab.newTab());
         tab.setupWithViewPager(viewpager);
         tab.getTabAt(0).select();
-        tab.setSelectedTabIndicatorColor(getResources().getColor(R.color.pink600));
+        tab.setSelectedTabIndicatorColor(getResources().getColor(R.color.tabSelectedTextColor));
         favoriteFragmentAdapter = new FavoriteFragmentAdapter(getSupportFragmentManager(), tab.getTabCount());
         viewpager.setAdapter(favoriteFragmentAdapter);
-        for (int i = 0; i < tabs.length; i++) {
-            tab.getTabAt(i).setText(tabs[i]);
-        }
+        tab.getTabAt(0).setText(tabTitleArr[0]);
+        tab.getTabAt(1).setText(tabTitleArr[1]);
         viewpager.addOnPageChangeListener(this);
     }
 
@@ -95,18 +101,20 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
     @Override
     public void onPageSelected(int position) {
         switch (position) {
+            /*
             case 0:
                 fab.setVisibility(View.GONE);
                 fab.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
                 break;
-            case 1:
+             */
+            case 0:
                 fab.setImageDrawable(this.getDrawable(R.drawable.baseline_add_white_48dp));
                 if (!fab.isShown()) {
                     fab.setVisibility(View.VISIBLE);
                     fab.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
                 }
                 break;
-            case 2:
+            case 1:
                 fab.setImageDrawable(this.getDrawable(R.drawable.baseline_search_white_48dp));
                 if (!fab.isShown()) {
                     fab.setVisibility(View.VISIBLE);
@@ -119,5 +127,11 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }

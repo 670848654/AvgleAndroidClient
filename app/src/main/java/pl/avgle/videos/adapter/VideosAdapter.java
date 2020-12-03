@@ -2,7 +2,6 @@ package pl.avgle.videos.adapter;
 
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -29,10 +28,6 @@ public class VideosAdapter extends BaseQuickAdapter<VideoBean.ResponseBean.Video
             favoriteView.setVisibility(View.VISIBLE);
         else
             favoriteView.setVisibility(View.GONE);
-        helper.getView(R.id.player).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                Utils.getVideoItemHeight()));
-        helper.getView(R.id.img_view).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                Utils.getVideoItemHeight()));
         helper.setText(R.id.videosName, item.getTitle());
         helper.setText(R.id.keyword, item.getKeyword().isEmpty() ? "无关键字" : item.getKeyword());
         String time = Utils.timeParse(item.getDuration());

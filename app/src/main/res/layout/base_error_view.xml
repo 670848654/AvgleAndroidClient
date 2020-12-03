@@ -11,5 +11,5 @@
         android:gravity="center"
         android:lineSpacingExtra="2dp"
         android:textStyle="bold|italic"
-        android:textColor="@color/head" />
+        android:textColor="@color/text_color_primary" />
 </RelativeLayout>

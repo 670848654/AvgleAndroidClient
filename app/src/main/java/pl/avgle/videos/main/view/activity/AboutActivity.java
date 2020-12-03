@@ -64,6 +64,16 @@ public class AboutActivity extends BaseActivity {
         initText();
     }
 
+    @Override
+    protected void setLandscape() {
+
+    }
+
+    @Override
+    protected void setPortrait() {
+
+    }
+
     public void initToolbar() {
         toolbar.setTitle(Utils.getString(R.string.about_title));
         setSupportActionBar(toolbar);

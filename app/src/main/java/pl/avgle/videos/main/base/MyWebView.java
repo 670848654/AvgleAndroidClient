@@ -20,7 +20,6 @@ public class MyWebView extends WebView {
 
     public MyWebView(Context arg0) {
         super(arg0);
-        setBackgroundColor(85621);
     }
 
     @SuppressLint("SetJavaScriptEnabled")

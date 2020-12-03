@@ -1,6 +1,10 @@
 package pl.avgle.videos.main.view.activity;
 
+import android.app.PictureInPictureParams;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.net.TrafficStats;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -16,9 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -35,7 +42,13 @@ public class WebViewActivity extends BaseActivity {
     ProgressBar pg;
     @BindView(R.id.touch)
     LinearLayout touch;
+    @BindView(R.id.speed)
+    TextView speed;
     private String url;
+    private long rxtxTotal =0;
+    private DecimalFormat showFloatFormat = new DecimalFormat("0.00");
+    private Handler handler = new Handler();
+    private boolean isPip = false;
 
     @Override
     protected void initBeforeView() {
@@ -63,6 +76,7 @@ public class WebViewActivity extends BaseActivity {
         hideNavBar();
         getBundle();
         initWebView();
+        handler.post(task);
     }
 
     public void getBundle() {
@@ -124,11 +138,22 @@ public class WebViewActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        cancel();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         //释放资源
         if (myWebView != null)
             myWebView.destroy();
         super.onDestroy();
+    }
+
+    @Override
+    protected void setLandscape() {
+
+    }
+
+    @Override
+    protected void setPortrait() {
+
     }
 
     @Override
@@ -167,5 +192,59 @@ public class WebViewActivity extends BaseActivity {
                 finish();
                 break;
         }
+    }
+
+    private Runnable task = new Runnable() {
+        public void run() {
+            handler.postDelayed(this,2000);
+            updateViewData();
+        }
+    };
+
+    public void cancel(){
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    public void updateViewData() {
+        long tempSum = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+        long rxtxLast = tempSum -rxtxTotal;
+        double totalSpeed = rxtxLast *1000 /2000d;
+        rxtxTotal = tempSum;
+        speed.setText(showSpeed(totalSpeed));
+    }
+
+    private String showSpeed(double speed) {
+        String speedString;
+        if (speed >=1048576d)
+            speedString =showFloatFormat.format(speed /1048576d) +"MB/s";
+        else
+            speedString =showFloatFormat.format(speed /1024d) +"KB/s";
+        return speedString;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void enterPicInPic() {
+        PictureInPictureParams builder = new PictureInPictureParams.Builder().build();
+        enterPictureInPictureMode(builder);
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (isInPictureInPictureMode) isPip = true;
+        else isPip = false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onUserLeaveHint() {
+        enterPicInPic();
+        super.onUserLeaveHint();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isPip) finish();
     }
 }

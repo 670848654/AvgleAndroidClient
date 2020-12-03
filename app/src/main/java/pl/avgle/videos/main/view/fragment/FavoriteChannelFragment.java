@@ -43,6 +43,10 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
     private List<ChannelBean.ResponseBean.CategoriesBean> list = new ArrayList<>();
     private View view;
 
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
+
+
     @Override
     protected View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (view == null) {
@@ -79,7 +83,10 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
                         bundle.putString("name", bean.getShortname());
                         bundle.putString("order", (String) SharedPreferencesUtils.getParam(getActivity(), "videos_order", "mr"));
                         intent.putExtras(bundle);
-                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, "sharedImg").toBundle());
+                        if (isPortrait)
+                            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, "sharedImg").toBundle());
+                        else
+                            startActivity(intent);
                         break;
                 }
             });
@@ -99,7 +106,6 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
                 return true;
             });
             mRecyclerView.setHasFixedSize(true);
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
             mRecyclerView.setAdapter(mChannelAdapter);
         }
     }
@@ -124,36 +130,49 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
 
     @Override
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(EventState eventState) {
+    public void onEvent(EventState eventState) {}
 
+    @Override
+    protected void setLandscape() {
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(getActivity(), 4);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
     }
 
     @Override
-    public void showLoadSuccessView(ChannelBean bean) {
-
+    protected void setPortrait() {
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 3 : 2);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
     }
+
+    @Override
+    public void showLoadSuccessView(ChannelBean bean) {}
 
     @Override
     public void showLoadUserSuccessView(List<ChannelBean.ResponseBean.CategoriesBean> list) {
         loading.setVisibility(View.GONE);
         this.list = list;
+        if (isPortrait) setPortrait();
+        else setLandscape();
         mChannelAdapter.setNewData(list);
     }
 
     @Override
-    public void showLoadingView() {
-
-    }
+    public void showLoadingView() {}
 
     @Override
     public void showLoadErrorView(String msg) {
         loading.setVisibility(View.GONE);
         errorTitle.setText(msg);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
         mChannelAdapter.setEmptyView(errorView);
     }
 
     @Override
-    public void showEmptyVIew() {
-
-    }
+    public void showEmptyVIew() {}
 }

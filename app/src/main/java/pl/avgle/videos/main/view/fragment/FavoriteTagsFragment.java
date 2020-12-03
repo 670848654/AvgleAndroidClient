@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
@@ -14,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -49,6 +49,9 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     private View view;
     private AlertDialog alertDialog;
     private FloatingActionButton fab;
+
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
 
     @Override
     protected View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,7 +102,10 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
                 bundle.putString("img", bean.getCover_url());
                 bundle.putString("order", (String) SharedPreferencesUtils.getParam(getActivity(), "videos_order", "mr"));
                 intent.putExtras(bundle);
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, "sharedImg").toBundle());
+                if (isPortrait)
+                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, "sharedImg").toBundle());
+                else
+                    startActivity(intent);
             });
             mTagsAdapter.setOnItemLongClickListener((adapter, view, position) -> {
                 mBottomSheetDialogTitle.setText(list.get(position).getTitle());
@@ -110,11 +116,11 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
                     removeTag(position, list.get(position).getTitle());
                     mBottomSheetDialog.dismiss();
                 });
+                mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
                 mBottomSheetDialog.show();
                 return true;
             });
             mRecyclerView.setHasFixedSize(true);
-            mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
             mRecyclerView.setAdapter(mTagsAdapter);
         }
     }
@@ -135,9 +141,9 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
      * 添加标签
      */
     public void addTags() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.MyDialogTheme);
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_add_tag, null);
-        final EditText et = view.findViewById(R.id.tag);
+        EditText et = view.findViewById(R.id.tag);
         builder.setPositiveButton(Utils.getString(R.string.favorite_tag_dialog_positive), null);
         builder.setNegativeButton(Utils.getString(R.string.favorite_tag_dialog_negative), null);
         builder.setTitle(Utils.getString(R.string.favorite_tag_dialog_title));
@@ -192,31 +198,54 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     }
 
     @Override
-    public void showLoadingView() {
-
+    protected void setLandscape() {
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(getActivity(), 4);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
+
+    @Override
+    protected void setPortrait() {
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 3 : 2);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
+    }
+
+    @Override
+    public void showLoadingView() {}
 
     @Override
     public void showLoadErrorView(String msg) {
         loading.setVisibility(View.GONE);
         errorTitle.setText(msg);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
         mTagsAdapter.setEmptyView(errorView);
     }
 
     @Override
-    public void showEmptyVIew() {
-
-    }
+    public void showEmptyVIew() {}
 
     @Override
-    public void showLoadSuccessView(TagsBean bean, boolean isLoad) {
-
-    }
+    public void showLoadSuccessView(TagsBean bean, boolean isLoad) {}
 
     @Override
     public void showUserFavoriteView(List<TagsBean.ResponseBean.CollectionsBean> list) {
         loading.setVisibility(View.GONE);
         this.list = list;
+        setRecyclerView();
         mTagsAdapter.setNewData(this.list);
+    }
+
+    private void setRecyclerView() {
+        if (isPortrait) setPortrait();
+        else setLandscape();
     }
 }

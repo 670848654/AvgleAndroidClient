@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ref">
+    android:background="@color/webview_bg_color">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,16 +33,29 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/ref"
-            android:text="刷新"
+            android:id="@+id/speed"
+            android:text="0.00KB/s"
             android:gravity="center"
             android:padding="10dp"
             android:drawablePadding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/baseline_swap_vert_white_48dp"
+            android:background="@drawable/webview_btn"
+            android:textColor="@color/dark_navigation_text_color" />
+
+        <TextView
+            android:id="@+id/ref"
+            android:text="刷新"
+            android:gravity="center"
+            android:padding="10dp"
+            android:drawablePadding="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:drawableLeft="@drawable/baseline_cached_white_48dp"
             android:background="@drawable/webview_btn"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/dark_navigation_text_color" />
 
         <TextView
             android:id="@+id/exit"
@@ -55,7 +68,7 @@
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/baseline_exit_to_app_white_48dp"
             android:background="@drawable/webview_btn"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/dark_navigation_text_color" />
 
     </LinearLayout>
 

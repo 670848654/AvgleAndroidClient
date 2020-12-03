@@ -15,7 +15,7 @@
 
     <string name="about_title">关于</string>
 
-    <string name="channel_title">频道</string>
+    <string name="channel_title">分类</string>
     <string name="exit_app">再按一次退出应用</string>
     <string name="search_text">请输入检索内容...</string>
 
@@ -27,7 +27,7 @@
     </string-array>
 
     <string-array name="favorite_arr">
-        <item>频道</item>
+<!--        <item>分类</item>-->
         <item>标签</item>
         <item>视频</item>
     </string-array>
@@ -43,7 +43,7 @@
 
     <string name="favorite_title">收藏夹</string>
     <string name="favorite_tag_dialog_enter">请输入标签</string>
-    <string name="favorite_tag_dialog_title">自定义标签</string>
+    <string name="favorite_tag_dialog_title">Custom</string>
     <string name="favorite_tag_dialog_positive">添加</string>
     <string name="favorite_tag_dialog_negative">取消</string>
     <string name="favorite_tag_dialog_error">参数不能为空</string>
@@ -79,7 +79,7 @@
     <string name="videos_long">收藏的视频</string>
     <string name="videos_short">收藏的视频</string>
     <string name="final_compile">最后编译</string>
-    <string name="final_compile_time">2020年11月24日</string>
+    <string name="final_compile_time">2020年12月3日</string>
 
     <string name="disableMsg">不可用</string>
     <string name="favoriteShortName">收藏夹</string>
@@ -102,4 +102,8 @@
 
     <string name="select_a_browser">请选择浏览器</string>
     <string name="browser_not_found">没有找到匹配的程序</string>
+
+    <string name="do_not_operate">请在数据加载完成后再操作！</string>
+    <string name="set_light_theme">切至亮色主题</string>
+    <string name="set_dark_theme">切至暗色主题</string>
 </resources>

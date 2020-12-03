@@ -16,7 +16,7 @@
     <item
         android:id="@+id/order"
         android:orderInCategory="60"
-        android:icon="@drawable/baseline_format_line_spacing_white_48dp"
+        android:icon="@drawable/baseline_sort_white_48dp"
         android:title="@string/order"
         app:showAsAction="always" />
 </menu>

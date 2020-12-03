@@ -60,6 +60,7 @@
                             android:id="@+id/source_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -99,7 +100,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/statement_desc"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -139,7 +140,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/test_model_desc"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -179,7 +180,7 @@
                             android:id="@+id/cache"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -219,7 +220,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/final_compile_time"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -259,7 +260,7 @@
                             android:id="@+id/version"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 
@@ -299,7 +300,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/github_url"
-                            android:textColor="#8C8C8C"
+                            android:textColor="@color/default_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
 

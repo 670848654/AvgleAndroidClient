@@ -9,14 +9,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,18 +46,12 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
     private List<TagsBean.ResponseBean.CollectionsBean> list = new ArrayList<>();
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    //每页显示多少数量
-    private int limit = 50;
-    //页数
-    private int nowPage = 0;
-    private boolean isLoad = false;
-    private boolean hasMore = true;
-    private boolean isErr = true;
+
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
 
     @Override
-    protected void initBeforeView() {
-
-    }
+    protected void initBeforeView() {}
 
     @Override
     protected int getLayout() {
@@ -94,7 +90,6 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
             mTagsAdapter.notifyDataSetChanged();
             isLoad = false;
             nowPage = 0;
-            mPresenter.detachView();
             mPresenter = createPresenter();
             loadData();
         });
@@ -104,19 +99,21 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         mTagsAdapter = new TagsAdapter(list);
         mTagsAdapter.setOnItemClickListener((adapter, view, position) -> {
             TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
             Intent intent = new Intent(TagsActivity.this, VideosActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("bean", (Serializable) bean);
+            bundle.putSerializable("bean", bean);
             bundle.putInt("type", QueryType.COLLECTIONS_TYPE);
             bundle.putString("name", bean.getTitle());
             bundle.putString("img", bean.getCover_url());
             bundle.putString("order", (String) SharedPreferencesUtils.getParam(TagsActivity.this, "videos_order", "mr"));
             intent.putExtras(bundle);
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(TagsActivity.this, view, "sharedImg").toBundle());
+            if (isPortrait)
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(TagsActivity.this, view, "sharedImg").toBundle());
+            else
+                startActivity(intent);
         });
         mTagsAdapter.setOnItemLongClickListener((adapter, view, position) -> {
             ImageView favoriteView = view.findViewById(R.id.favorite_view);
@@ -138,6 +135,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
                 }
                 mBottomSheetDialog.dismiss();
             });
+            mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
             mBottomSheetDialog.show();
             return true;
         });
@@ -154,7 +152,6 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
                     //成功获取更多数据
                     nowPage++;
                     isLoad = true;
-                    mPresenter.detachView();
                     mPresenter = createPresenter();
                     loadData();
                 } else {
@@ -206,6 +203,8 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
                 if (!isLoad) {
                     list = data;
                     mTagsAdapter.setNewData(list);
+                    if (isPortrait) setPortrait();
+                    else setLandscape();
                 } else
                     mTagsAdapter.addData(data);
             }
@@ -213,9 +212,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
     }
 
     @Override
-    public void showUserFavoriteView(List<TagsBean.ResponseBean.CollectionsBean> list) {
-
-    }
+    public void showUserFavoriteView(List<TagsBean.ResponseBean.CollectionsBean> list) {}
 
     @Override
     public void showLoadingView() {
@@ -252,6 +249,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
     public void showErrorView(String text) {
         mSwipe.setRefreshing(false);
         errorTitle.setText(text);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         mTagsAdapter.setEmptyView(errorView);
     }
 
@@ -267,5 +265,23 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void setLandscape() {
+        if (gridLayoutManager != null)
+            position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(this, 4);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
+    }
+
+    @Override
+    protected void setPortrait() {
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
     }
 }

@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -330,7 +331,7 @@ public class Utils {
         return dm.widthPixels / 16 * 9;
     }
 
-    public static int getVideoItemHeight() {
+/*    public static int getVideoItemHeight() {
         Resources resources = context.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         return (dm.widthPixels - dpToPx(context,8)) / 16 * 9;
@@ -340,5 +341,15 @@ public class Utils {
         Resources resources = context.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
         return (dm.widthPixels / 2 - dpToPx(context,8)) / 16 * 9;
+    }*/
+
+    /**
+     * 判断是否平板设备
+     * @param context
+     * @return true:平板,false:手机
+     */
+    public static boolean isTabletDevice(Context context) {
+        return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >=
+                Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 }

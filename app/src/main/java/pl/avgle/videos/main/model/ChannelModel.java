@@ -24,6 +24,7 @@ public class ChannelModel implements ChannelContract.Model {
             public void onResponse(Call<ChannelBean> call, Response<ChannelBean> response) {
                 if (response.isSuccessful()) {
                     ChannelBean channelBeans = response.body();
+                    /*
                     List<String> userFavorites = DatabaseUtil.queryAllChannelCHID();
                     if (userFavorites.size() > 0) {
                         for (ChannelBean.ResponseBean.CategoriesBean categoriesBean : channelBeans.getResponse().getCategories()) {
@@ -33,6 +34,7 @@ public class ChannelModel implements ChannelContract.Model {
                                 categoriesBean.setFavorite(false);
                         }
                     }
+                    */
                     callBack.success(channelBeans);
                 }
                 else {

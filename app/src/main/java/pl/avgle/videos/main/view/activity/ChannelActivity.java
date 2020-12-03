@@ -3,23 +3,27 @@ package pl.avgle.videos.main.view.activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.wuyr.rippleanimation.RippleAnimation;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -33,7 +37,6 @@ import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.ChannelAdapter;
 import pl.avgle.videos.bean.ChannelBean;
 import pl.avgle.videos.bean.EventState;
-import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.config.QueryType;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.BaseActivity;
@@ -58,6 +61,16 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     @BindView(R.id.nav_view)
     NavigationView navigationView;
     private long exitTime = 0;
+    private int[][] states = new int[][]{
+            new int[]{-android.R.attr.state_checked},
+            new int[]{android.R.attr.state_checked}
+    };
+
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
+
+    private TextView themeView;
+    private boolean isChangingTheme = false;
 
     @Override
     protected void initBeforeView() {}
@@ -82,7 +95,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         EventBus.getDefault().register(this);
         initToolbar();
         initSwipe();
-        initRvList();
         initDrawer();
         initAdapter();
     }
@@ -101,13 +113,8 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         });
     }
 
-    public void initRvList() {
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-    }
-
     public void initDrawer() {
-        StatusBarUtil.setColorForDrawerLayout(this, drawer, getResources().getColor(R.color.pornhub), 0);
+        StatusBarUtil.setColorForDrawerLayout(this, drawer, getResources().getColor(R.color.colorPrimary), 0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
@@ -124,17 +131,37 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             }
         });
         toggle.syncState();
-        int[][] states = new int[][]{
-                new int[]{-android.R.attr.state_checked},
-                new int[]{android.R.attr.state_checked}
-        };
-        int[] colors = new int[]{getResources().getColor(R.color.tabTextColor),
+
+        int[] colors = new int[]{getResources().getColor(R.color.text_color_primary),
                 getResources().getColor(R.color.pornhub)
         };
         ColorStateList csl = new ColorStateList(states, colors);
+        View view = navigationView.getHeaderView(0);
+        themeView = view.findViewById(R.id.theme);
+        if (isDarkTheme) themeView.setText(Utils.getString(R.string.set_light_theme));
+        else themeView.setText(Utils.getString(R.string.set_dark_theme));
+        themeView.setOnClickListener(v -> {
+            if (Utils.isFastClick())
+                setTheme(isDarkTheme);
+        });
         navigationView.setItemTextColor(csl);
         navigationView.setItemIconTintList(csl);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void setTheme(boolean isDark) {
+        isChangingTheme = true;
+        if (isDark) {
+            isDarkTheme = false;
+            themeView.setText(Utils.getString(R.string.set_dark_theme));
+            SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",false);
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else {
+            isDarkTheme = true;
+            themeView.setText(Utils.getString(R.string.set_light_theme));
+            SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",true);
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
     }
 
     @Override
@@ -155,6 +182,8 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
                 for (int i = 0; i < bean.getResponse().getCategories().size(); i++) {
                     list.add(bean.getResponse().getCategories().get(i));
                 }
+                if (isPortrait) setPortrait();
+                else setLandscape();
                 mChannelAdapter.setNewData(this.list);
             }
         });
@@ -183,6 +212,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     public void showErrorView(String text) {
         mSwipe.setRefreshing(false);
         errorTitle.setText(text);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         mChannelAdapter.setEmptyView(errorView);
     }
 
@@ -207,7 +237,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         mSearchView.setMaxWidth(2000);
         mSearchView.findViewById(androidx.appcompat.R.id.search_plate).setBackground(null);
         mSearchView.findViewById(androidx.appcompat.R.id.submit_area).setBackground(null);
-//        SearchView.SearchAutoComplete textView = mSearchView.findViewById(R.id.search_src_text);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -236,10 +265,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.search) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -262,7 +287,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
                     Utils.showHomeTimeDialog(this, QueryType.FEATURED_TYPE, "tr", "Featured Videos", bundle);
                     break;
                 case R.id.nav_favorite:
-                    startActivityForResult(new Intent(this, FavoriteActivity.class), FAVORITE_REQUEST_CODE);
+                    startActivity(new Intent(this, FavoriteActivity.class));
                     break;
                 case R.id.nav_about:
                     startActivity(new Intent(this, AboutActivity.class));
@@ -278,6 +303,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     private void initAdapter() {
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
+        mRecyclerView.setHasFixedSize(true);
         mChannelAdapter = new ChannelAdapter(list);
         mChannelAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
@@ -291,10 +317,14 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
                     bundle.putString("name", bean.getShortname());
                     bundle.putString("order", (String) SharedPreferencesUtils.getParam(ChannelActivity.this, "videos_order", "mr"));
                     intent.putExtras(bundle);
-                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ChannelActivity.this, view, "sharedImg").toBundle());
+                    if (isPortrait)
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ChannelActivity.this, view, "sharedImg").toBundle());
+                    else
+                        startActivity(intent);
                     break;
             }
         });
+        /*
         mChannelAdapter.setOnItemLongClickListener((adapter, view, position) -> {
             ImageView favoriteView = view.findViewById(R.id.favorite_view);
             ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
@@ -318,14 +348,16 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             mBottomSheetDialog.show();
             return true;
         });
+         */
         mRecyclerView.setAdapter(mChannelAdapter);
     }
 
-    /**
+    /*
      * 收藏频道
      *
      * @param bean
      */
+    /*
     public void collectionChannel(ImageView favoriteView, ChannelBean.ResponseBean.CategoriesBean bean) {
         if (DatabaseUtil.checkChannel(bean.getCHID()))
             application.showToastMsg(Utils.getString(R.string.channel_is_exist));
@@ -335,18 +367,20 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             favoriteView.setVisibility(View.VISIBLE);
         }
     }
+     */
 
-    /**
+    /*
      * 移除收藏
      * @param favoriteView
      * @param bean
      */
+    /*
     private void removeCollection(ImageView favoriteView, ChannelBean.ResponseBean.CategoriesBean bean) {
         DatabaseUtil.deleteChannel(bean.getCHID());
         application.showToastMsg(bean.getName() + "\n" + Utils.getString(R.string.remove_favorite_success));
         favoriteView.setVisibility(View.GONE);
     }
-
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -354,11 +388,60 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    protected void setLandscape() {
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(this, 4);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
+    }
+
+    @Override
+    protected void setPortrait() {
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventState eventState) {
+        /*
         if (eventState.getState() == 0 && list.size() > 0) {
             mChannelAdapter.setNewData(new ArrayList<>());
             loadData();
+        }
+         */
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int[] lightColors = new int[]{getResources().getColor(R.color.light_navigation_text_color),
+                getResources().getColor(R.color.light_navigation_tini_color)
+        };
+        int[] darkColors = new int[]{getResources().getColor(R.color.dark_navigation_text_color),
+                getResources().getColor(R.color.dark_navigation_tini_color)
+        };
+        if (isChangingTheme) {
+            RippleAnimation.create(themeView).setDuration(800).start();
+            navigationView.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_navigation_color) : getResources().getColor(R.color.light_navigation_color));
+            ColorStateList csl = new ColorStateList(states, isDarkTheme ? darkColors : lightColors);
+            navigationView.setItemTextColor(csl);
+            navigationView.setItemIconTintList(csl);
+            drawer.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_navigation_color) : getResources().getColor(R.color.light_navigation_color));
+            toolbar.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_toolbar_color) : getResources().getColor(R.color.light_toolbar_color));
+            errorView.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_window_color) : getResources().getColor(R.color.light_window_color));
+            errorTitle.setTextColor(isDarkTheme ? getResources().getColor(R.color.dark_navigation_text_color) : getResources().getColor(R.color.light_navigation_text_color));
+            emptyView.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_window_color) : getResources().getColor(R.color.light_window_color));
+            StatusBarUtil.setColorForDrawerLayout(this, drawer, isDarkTheme ? getResources().getColor(R.color.dark_toolbar_color) : getResources().getColor(R.color.light_toolbar_color), 0);
+            isChangingTheme = false;
         }
     }
 }

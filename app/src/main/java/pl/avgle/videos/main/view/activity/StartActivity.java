@@ -2,12 +2,14 @@ package pl.avgle.videos.main.view.activity;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.widget.RelativeLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
+import butterknife.BindView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -20,6 +22,9 @@ import pl.avgle.videos.util.StatusBarUtil;
 import pl.avgle.videos.util.Utils;
 
 public class StartActivity extends BaseActivity {
+    @BindView(R.id.bg)
+    RelativeLayout bg;
+
     @Override
     protected void initBeforeView() {
 
@@ -42,12 +47,23 @@ public class StartActivity extends BaseActivity {
 
     @Override
     protected void initData() {
+        if (isDarkTheme) bg.setBackgroundColor(getResources().getColor(R.color.dark_bg));
         hideNavBar();
         StatusBarUtil.setTranslucent(this, 0);
         Handler handler = new Handler();
         handler.postDelayed(() -> {
             checkUpdate();
         }, 1500);
+    }
+
+    @Override
+    protected void setLandscape() {
+
+    }
+
+    @Override
+    protected void setPortrait() {
+
     }
 
     private void checkUpdate() {

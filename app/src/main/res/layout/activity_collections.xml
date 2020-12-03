@@ -15,16 +15,6 @@
 
         <include layout="@layout/content_base" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:visibility="gone"
-            app:layout_behavior="pl.avgle.videos.util.ScrollAwareBehavior"
-            app:srcCompat="@drawable/baseline_add_white_48dp" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </LinearLayout>

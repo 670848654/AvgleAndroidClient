@@ -54,6 +54,16 @@ public class OpenSourceActivity extends BaseActivity {
         initAdapter();
     }
 
+    @Override
+    protected void setLandscape() {
+
+    }
+
+    @Override
+    protected void setPortrait() {
+
+    }
+
     public void initToolbar() {
         toolbar.setTitle(Utils.getString(R.string.open_source_title));
         setSupportActionBar(toolbar);
@@ -78,6 +88,7 @@ public class OpenSourceActivity extends BaseActivity {
         list.add(new SourceBean("gson", "google", "A Java serialization/deserialization library to convert Java Objects into JSON and back", "https://github.com/google/gson"));
         list.add(new SourceBean("MaterialSearchBar", "mancj", "Material Design Search Bar for Android", "https://github.com/mancj/MaterialSearchBar"));
         list.add(new SourceBean("EventBus", "greenrobot", "Event bus for Android and Java that simplifies communication between Activities, Fragments, Threads, Services, etc. Less code, better quality.", "https://github.com/greenrobot/EventBus"));
+        list.add(new SourceBean("RippleAnimation", "wuyr", "仿酷安客户端的主题切换动画效果", "https://github.com/wuyr/RippleAnimation"));
     }
 
     public void initAdapter() {

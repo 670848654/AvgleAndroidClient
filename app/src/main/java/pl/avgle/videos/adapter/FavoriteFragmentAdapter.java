@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import java.util.HashMap;
 
-import pl.avgle.videos.main.view.fragment.FavoriteChannelFragment;
 import pl.avgle.videos.main.view.fragment.FavoriteTagsFragment;
 import pl.avgle.videos.main.view.fragment.FavoriteVideosFragment;
 
@@ -41,13 +40,15 @@ public class FavoriteFragmentAdapter extends FragmentStatePagerAdapter {
         Fragment fragment = mFragmentHashMap.get(pos);
         if (fragment == null) {
             switch (pos) {
+                /*
                 case 0:
                     fragment = new FavoriteChannelFragment();
                     break;
-                case 1:
+                 */
+                case 0:
                     fragment = new FavoriteTagsFragment();
                     break;
-                case 2:
+                case 1:
                     fragment = new FavoriteVideosFragment();
                     break;
             }

@@ -1,5 +1,6 @@
 package pl.avgle.videos.main.base;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,13 +39,18 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
     protected SelectAdapter selectAdapter;
     protected List<SelectBean> selectBeanList;
     protected Unbinder mUnBinder;
+    protected boolean isPortrait;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Configuration mConfiguration = getResources().getConfiguration();
+        int ori = mConfiguration.orientation;
+        if (ori == mConfiguration.ORIENTATION_LANDSCAPE) isPortrait = false;
+        else if (ori == mConfiguration.ORIENTATION_PORTRAIT) isPortrait = true;
         isFirstLoad = true;
         mPresenter = createPresenter();
         initCustomViews();
-        initmBottomSheetDialog();
+        initBottomSheetDialog();
         if (application == null) application = (Avgle) getActivity().getApplication();
         View view = initViews(inflater, container, savedInstanceState);
         EventBus.getDefault().register(this);
@@ -109,7 +115,7 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
         emptyView = getLayoutInflater().inflate(R.layout.base_emnty_view, null);
     }
 
-    public void initmBottomSheetDialog() {
+    public void initBottomSheetDialog() {
         View selectView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_select, null);
         mBottomSheetDialogTitle = selectView.findViewById(R.id.title);
         selectRecyclerView = selectView.findViewById(R.id.select_list);
@@ -139,4 +145,20 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
     }
 
     public abstract void onEvent(EventState eventState);
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            isPortrait = false;
+            setLandscape();
+        } else {
+            isPortrait = true;
+            setPortrait();
+        }
+    }
+
+    protected abstract void setLandscape();
+
+    protected abstract void setPortrait();
 }

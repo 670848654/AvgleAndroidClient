@@ -1,6 +1,7 @@
 package pl.avgle.videos.main.view.fragment;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,9 +12,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -60,6 +62,9 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     private List<VideoBean.ResponseBean.VideosBean> searchList = new ArrayList<>();
     private boolean isSearch = false;
     private FloatingActionButton fab;
+
+    int position = 0;
+    private GridLayoutManager gridLayoutManager;
 
     @Override
     protected View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -112,9 +117,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
             mVideosAdapter.bindToRecyclerView(mRecyclerView);
             mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
                 @Override
-                public void onChildViewAttachedToWindow(@NonNull View view) {
-
-                }
+                public void onChildViewAttachedToWindow(@NonNull View view) {}
 
                 @Override
                 public void onChildViewDetachedFromWindow(@NonNull View view) {
@@ -164,15 +167,16 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                     }
                     mBottomSheetDialog.dismiss();
                 });
+                mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
                 mBottomSheetDialog.show();
             });
             mRecyclerView.setHasFixedSize(true);
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mRecyclerView.setAdapter(mVideosAdapter);
         }
     }
 
     public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
+        Jzvd.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
         hdView.setVisibility(View.GONE);
@@ -209,6 +213,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void removePlayerView(JZPlayer player) {
         player.releaseAllVideos();
         player.setVisibility(View.GONE);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
         hdView.setVisibility(View.VISIBLE);
         hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
@@ -231,8 +236,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
             mVideosAdapter.setNewData(list);
             showLoadErrorView(Utils.getString(R.string.empty_channel));
         } else if (searchList.size() == 0) {
-            errorTitle.setText(Utils.getString(R.string.favorite_video_empty_error));
-            mVideosAdapter.setEmptyView(errorView);
+            showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
         }
     }
 
@@ -251,10 +255,44 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     @Override
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventState eventState) {
+        isPortrait = eventState.isPortrait();
         if (eventState.getState() == 2 && list.size() > 0) {
             mVideosAdapter.setNewData(new ArrayList<>());
             loadData();
         }
+    }
+
+    @Override
+    protected void setLandscape() {
+        if (isSearch && searchList.size() > 0)
+            setLandscapeRecyclerView();
+        else if (!isSearch && list.size() > 0)
+            setLandscapeRecyclerView();
+    }
+
+    private void setLandscapeRecyclerView() {
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(getActivity(), 4);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
+    }
+
+    @Override
+    protected void setPortrait() {
+        if (isSearch && searchList.size() > 0)
+            setPortraitRecyclerView();
+        else if (!isSearch && list.size() > 0)
+            setPortraitRecyclerView();
+
+    }
+
+    private void setPortraitRecyclerView() {
+        if (gridLayoutManager != null)
+            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 2 : 1);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.getLayoutManager().scrollToPosition(position);
     }
 
     @Override
@@ -263,33 +301,29 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     }
 
     @Override
-    public void showLoadSuccessView(VideoBean bean, boolean isLoad) {
-
-    }
+    public void showLoadSuccessView(VideoBean bean, boolean isLoad) {}
 
     @Override
     public void showUserFavoriteView(List<VideoBean.ResponseBean.VideosBean> list) {
         loading.setVisibility(View.GONE);
         this.list = list;
+        setRecyclerView();
         mVideosAdapter.setNewData(this.list);
     }
 
     @Override
-    public void showLoadingView() {
-
-    }
+    public void showLoadingView() {}
 
     @Override
     public void showLoadErrorView(String msg) {
         loading.setVisibility(View.GONE);
         errorTitle.setText(msg);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
         mVideosAdapter.setEmptyView(errorView);
     }
 
     @Override
-    public void showEmptyVIew() {
-
-    }
+    public void showEmptyVIew() {}
 
     @Override
     public void onDestroy() {
@@ -315,6 +349,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         searchList.clear();
         if (text.toString().isEmpty()) {
             isSearch = false;
+            setRecyclerView();
             mVideosAdapter.setNewData(list);
         } else {
             isSearch = true;
@@ -325,6 +360,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
             mVideosAdapter.setNewData(searchList);
             if (searchList.size() == 0) {
                 errorTitle.setText(Utils.getString(R.string.favorite_video_empty_error));
+                setRecyclerView();
                 mVideosAdapter.setEmptyView(errorView);
             }
         }
@@ -337,5 +373,10 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void setSearchBarGone() {
         searchBar.closeSearch();
         searchBar.setVisibility(View.GONE);
+    }
+
+    private void setRecyclerView() {
+        if (isPortrait) setPortrait();
+        else setLandscape();
     }
 }

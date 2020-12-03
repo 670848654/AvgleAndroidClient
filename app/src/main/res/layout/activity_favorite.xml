@@ -37,8 +37,8 @@
                 app:tabGravity="fill"
                 app:tabMaxWidth="0dp"
                 app:tabMode="fixed"
-                app:tabTextColor="@color/colorPrimary"
-                app:tabSelectedTextColor="@color/pink600" />
+                app:tabTextColor="@color/tabTextColor"
+                app:tabSelectedTextColor="@color/tabSelectedTextColor" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.viewpager.widget.ViewPager
@@ -49,11 +49,11 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
+            android:src="@drawable/baseline_add_white_48dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            android:visibility="gone"/>
+            android:layout_margin="@dimen/fab_margin" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -12,7 +12,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<include layout="@layout/app_bar_toolbar" />-->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -21,21 +20,21 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collaps_toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/collaps_toolbar_layout"
-            android:background="@color/pornhub"
-            app:contentScrim="@color/pornhub"
+            android:background="@color/colorPrimary"
+            app:contentScrim="@color/colorPrimary"
             android:fitsSystemWindows="true"
             app:expandedTitleMarginBottom="16dp"
             app:expandedTitleMarginStart="24dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:collapsedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
-            app:statusBarScrim="@color/pornhub">
+            app:statusBarScrim="@color/colorPrimary">
 
             <ImageView
                 android:transitionName="sharedImg"
-                android:id="@+id/title_img"
+                android:id="@+id/header_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
