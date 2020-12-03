@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -269,19 +268,23 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
 
     @Override
     protected void setLandscape() {
-        if (gridLayoutManager != null)
-            position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        gridLayoutManager = new GridLayoutManager(this, 4);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(this, 4);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
 
     @Override
     protected void setPortrait() {
-        if (gridLayoutManager != null)
-            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
 }

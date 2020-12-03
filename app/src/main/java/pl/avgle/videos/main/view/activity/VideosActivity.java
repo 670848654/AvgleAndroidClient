@@ -19,7 +19,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -566,24 +565,28 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     @Override
     protected void setLandscape() {
         setAppBarLayout(false);
-        if (gridLayoutManager != null)
-            position = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        appBarLayout.setExpanded(false, false);
-        gridLayoutManager = new GridLayoutManager(this, 4);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            appBarLayout.setExpanded(false, false);
+            gridLayoutManager = new GridLayoutManager(this, 4);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
 
     @Override
     protected void setPortrait() {
         setAppBarLayout(true);
-        if (gridLayoutManager != null)
-            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        if (position > 3)
-            appBarLayout.setExpanded(false, false);
-        gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 2 : 1);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
+        if (list.size() > 0) {
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            if (position > 3)
+                appBarLayout.setExpanded(false, false);
+            gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 2 : 1);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
 
     private void setAppBarLayout(boolean nestedScrollingEnabled) {
