@@ -593,6 +593,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         appBarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
                 Utils.getActivityAppBarLayoutHeight()));
         mRecyclerView.setNestedScrollingEnabled(nestedScrollingEnabled);
+        if (!isPortrait) appBarLayout.setExpanded(false, false);
     }
 
     @Override

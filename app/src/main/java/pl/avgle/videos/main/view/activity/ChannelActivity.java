@@ -4,10 +4,13 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +18,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -68,6 +72,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     int position = 0;
     private GridLayoutManager gridLayoutManager;
 
+    private ImageView headerImg;
     private TextView themeView;
     private boolean isChangingTheme = false;
 
@@ -116,7 +121,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         StatusBarUtil.setColorForDrawerLayout(this, drawer, getResources().getColor(R.color.colorPrimary), 0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+      /*  drawer.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
@@ -126,9 +131,9 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                if (!isDarkTheme) getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
-        });
+        });*/
         toggle.syncState();
 
         int[] colors = new int[]{getResources().getColor(R.color.text_color_primary),
@@ -136,9 +141,9 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         };
         ColorStateList csl = new ColorStateList(states, colors);
         View view = navigationView.getHeaderView(0);
+        headerImg = view.findViewById(R.id.header_img);
         themeView = view.findViewById(R.id.theme);
-        if (isDarkTheme) themeView.setText(Utils.getString(R.string.set_light_theme));
-        else themeView.setText(Utils.getString(R.string.set_dark_theme));
+        setHeaderImg();
         themeView.setOnClickListener(v -> {
             if (Utils.isFastClick())
                 setTheme(isDarkTheme);
@@ -152,14 +157,28 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         isChangingTheme = true;
         if (isDark) {
             isDarkTheme = false;
-            themeView.setText(Utils.getString(R.string.set_dark_theme));
             SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",false);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         } else {
             isDarkTheme = true;
-            themeView.setText(Utils.getString(R.string.set_light_theme));
             SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",true);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
+    }
+
+    private void setHeaderImg() {
+        Drawable[] drawables = themeView.getCompoundDrawables();
+        Drawable wrapDrawable = DrawableCompat.wrap(drawables[0]);
+        if (isDarkTheme) {
+            themeView.setText(Utils.getString(R.string.set_light_theme));
+            themeView.setTextColor(Color.WHITE);
+            DrawableCompat.setTint(wrapDrawable, Color.WHITE);
+            headerImg.setImageDrawable(getDrawable(R.drawable.dark_header));
+        } else {
+            themeView.setText(Utils.getString(R.string.set_dark_theme));
+            themeView.setTextColor(Color.BLACK);
+            DrawableCompat.setTint(wrapDrawable, Color.BLACK);
+            headerImg.setImageDrawable(getDrawable(R.drawable.light_header));
         }
     }
 
@@ -430,6 +449,9 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         };
         if (isChangingTheme) {
             RippleAnimation.create(themeView).setDuration(800).start();
+            setHeaderImg();
+/*            if (isDarkTheme) getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            else getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);*/
             navigationView.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_navigation_color) : getResources().getColor(R.color.light_navigation_color));
             ColorStateList csl = new ColorStateList(states, isDarkTheme ? darkColors : lightColors);
             navigationView.setItemTextColor(csl);

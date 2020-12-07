@@ -47,6 +47,7 @@ public class StartActivity extends BaseActivity {
 
     @Override
     protected void initData() {
+        application.showToastMsg(Utils.getString(R.string.check_update_text));
         if (isDarkTheme) bg.setBackgroundColor(getResources().getColor(R.color.dark_bg));
         hideNavBar();
         StatusBarUtil.setTranslucent(this, 0);

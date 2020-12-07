@@ -5,12 +5,11 @@
     android:layout_height="@dimen/nav_header_height">
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/header_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/header" />
+        android:scaleType="centerCrop" />
 
     <TextView
         android:id="@+id/theme"
@@ -21,7 +20,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginRight="5dp"
         android:gravity="center"
-        android:text="asdasdsad"
         android:drawableLeft="@drawable/baseline_style_white_48dp"
         android:drawableTint="@color/light_window_color"
         android:drawablePadding="5dp"
