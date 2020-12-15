@@ -276,6 +276,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         gridLayoutManager = new GridLayoutManager(getActivity(), 4);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.getLayoutManager().scrollToPosition(position);
+        setGridSpaceItemDecoration(mRecyclerView, 4);
     }
 
     @Override
@@ -293,6 +294,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 2 : 1);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.getLayoutManager().scrollToPosition(position);
+        setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 2 : 1);
     }
 
     @Override

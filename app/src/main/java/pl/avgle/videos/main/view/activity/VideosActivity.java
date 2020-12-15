@@ -9,13 +9,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -27,6 +30,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputLayout;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -36,6 +40,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import cn.jzvd.Jzvd;
@@ -81,7 +86,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     @BindView(R.id.collaps_toolbar_layout)
     CollapsingToolbarLayout st;
     private boolean isLoading;
-    private SearchView mSearchView;
 
     private JZPlayer player;
     private RelativeLayout hdView;
@@ -92,11 +96,12 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     private TagsBean.ResponseBean.CollectionsBean tagsBean;
     private List<String> userTags;
-    private MenuItem favoriteItem;
+    private MenuItem orderItem, favoriteItem;
     private boolean tagIsFavorite = false;
 
     int position = 0;
     private GridLayoutManager gridLayoutManager;
+    private AlertDialog alertDialog;
 
     @Override
     public void complete() {
@@ -119,12 +124,18 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             return new VideoPresenter(isLoad, type, toolbarTitle, nowPage, limit, order, this);
         else if (type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE)
             return new VideoPresenter(isLoad, type, nowPage, order, time, limit, this);
+        else if (type == QueryType.JAVS_TYPE)
+            return new VideoPresenter(isLoad, type, toolbarTitle, nowPage, limit, order, this);
         else
             return null;
     }
 
     @Override
     protected void loadData() {
+        list.clear();
+        isLoad = false;
+        nowPage = 0;
+        mPresenter = createPresenter();
         mPresenter.loadData();
     }
 
@@ -169,10 +180,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     public void initSwipe() {
         mSwipe.setColorSchemeResources(R.color.colorAccent, R.color.blue500, R.color.purple500);
         mSwipe.setOnRefreshListener(() -> {
-            mVideosAdapter.setNewData(list = new ArrayList<>());
-            isLoad = false;
-            nowPage = 0;
-            mPresenter = createPresenter();
+            mVideosAdapter.setNewData(new ArrayList<>());
             loadData();
         });
     }
@@ -283,10 +291,10 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 if (!img.equals(""))
                     ImageLoader.getInstance().displayImage(img, headerImg, getSimpleOptions());
                 else
-                    headerImg.setImageDrawable(getDrawable(R.drawable.default_image));
+                    headerImg.setImageDrawable(isDarkTheme ? getDrawable(R.drawable.dark_header) : getDrawable(R.drawable.light_header));
                 break;
             default:
-                    headerImg.setImageDrawable(getDrawable(R.drawable.default_image));
+                headerImg.setImageDrawable(isDarkTheme ? getDrawable(R.drawable.dark_header) : getDrawable(R.drawable.light_header));
                 break;
         }
     }
@@ -316,7 +324,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                     break;
             }
             mOrderDialog.dismiss();
-            list.clear();
             mVideosAdapter.notifyDataSetChanged();
             isLoad = false;
             nowPage = 0;
@@ -356,6 +363,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                     }
                     favoriteItem.setVisible(true);
                 }
+                if (type == QueryType.CHANNEL_TYPE || type == QueryType.QUERY_TYPE || type == QueryType.JAVS_TYPE) orderItem.setVisible(true);
                 hasMore = bean.getResponse().isHas_more();
                 setLoadState(true);
                 List<VideoBean.ResponseBean.VideosBean> data = new ArrayList<>();
@@ -420,41 +428,64 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.videos_menu, menu);
-        MenuItem item = menu.findItem(R.id.order);
+        orderItem = menu.findItem(R.id.order);
         favoriteItem = menu.findItem(R.id.favorite);
         favoriteItem.setVisible(false);
-        if (type == QueryType.DEFAULT || type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE) {
-            item.setVisible(false);
-        }
-        final MenuItem searchItem = menu.findItem(R.id.search);
-        mSearchView = (SearchView) searchItem.getActionView();
-        mSearchView.setQueryHint(Utils.getString(R.string.search_text));
-        mSearchView.setMaxWidth(2000);
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (!query.isEmpty()) {
-                    mSearchView.onActionViewCollapsed();
-                    st.setTitle(query);
-                    Utils.hideKeyboard(mSearchView);
-                    mSearchView.clearFocus();
-                    toolbarTitle = query;
-                    type = QueryType.QUERY_TYPE;
-                    mVideosAdapter.setNewData(list = new ArrayList<>());
-                    tagsBean = null;
-                    favoriteItem.setVisible(false);
-                    isLoad = false;
-                    nowPage = 0;
-                    mPresenter = createPresenter();
-                    loadData();
-                }
-                return true;
-            }
+        if (type == QueryType.DEFAULT || type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE) orderItem.setVisible(false);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        searchItem.setOnMenuItemClickListener(item -> {
+            if (Utils.isFastClick()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
+                View view = LayoutInflater.from(this).inflate(R.layout.dialog_search, null);
+                TextInputLayout til = view.findViewById(R.id.text_hint);
+                Spinner spinner = view.findViewById(R.id.spinner);
+                AtomicBoolean isJav = new AtomicBoolean(false);
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        switch (position) {
+                            case 0:
+                                isJav.set(false);
+                                til.setHint(getString(R.string.search_tag_text));
+                                break;
+                            case 1:
+                                isJav.set(true);
+                                til.setHint(getString(R.string.search_jav_text));
+                                break;
+                        }
+                    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                EditText et = view.findViewById(R.id.search_text);
+                builder.setPositiveButton(Utils.getString(R.string.confirm), null);
+                builder.setNegativeButton(Utils.getString(R.string.cancel), null);
+                builder.setCancelable(false);
+                alertDialog = builder.setView(view).create();
+                alertDialog.show();
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                    String text = et.getText().toString();
+                    if (!text.trim().isEmpty()) {
+                        toolbarTitle = text;
+                        st.setTitle(text);
+                        type = isJav.get() ? QueryType.JAVS_TYPE : QueryType.QUERY_TYPE;
+                        mVideosAdapter.setNewData(new ArrayList<>());
+                        tagsBean = null;
+                        favoriteItem.setVisible(false);
+                        Toast.makeText(this, isJav.get() ? Utils.getString(R.string.search_with_jav_number) :  Utils.getString(R.string.search_with_keyword), Toast.LENGTH_SHORT).show();
+                        loadData();
+                        alertDialog.dismiss();
+                    } else {
+                        et.setError(Utils.getString(R.string.favorite_tag_dialog_error));
+                        return;
+                    }
+                });
+                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> alertDialog.dismiss());
             }
+            return false;
         });
         return true;
     }
@@ -572,6 +603,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, 4);
         }
     }
 
@@ -586,6 +618,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 2 : 1);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView,Utils.isTabletDevice(this) ? 2 : 1);
         }
     }
 

@@ -28,6 +28,7 @@ import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.SelectAdapter;
 import pl.avgle.videos.application.Avgle;
 import pl.avgle.videos.bean.SelectBean;
+import pl.avgle.videos.custom.GridSpaceItemDecoration;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.StatusBarUtil;
@@ -55,6 +56,7 @@ public abstract class BaseActivity<V, P extends Presenter<V>> extends AppCompatA
     protected boolean mActivityFinish = false;
     protected boolean isPortrait;
     protected boolean isDarkTheme;
+    protected GridSpaceItemDecoration gridSpaceItemDecoration;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -187,6 +189,12 @@ public abstract class BaseActivity<V, P extends Presenter<V>> extends AppCompatA
         String contextString = this.toString();
         return contextString.substring(contextString.lastIndexOf(".") + 1,
                 contextString.indexOf("@"));
+    }
+
+    protected void setGridSpaceItemDecoration(RecyclerView recyclerView, int spanCount) {
+        if (gridSpaceItemDecoration != null) recyclerView.removeItemDecoration(gridSpaceItemDecoration);
+        gridSpaceItemDecoration = new GridSpaceItemDecoration(spanCount, Utils.dpToPx(this, 5), true);
+        recyclerView.addItemDecoration(gridSpaceItemDecoration);
     }
 
     @Override

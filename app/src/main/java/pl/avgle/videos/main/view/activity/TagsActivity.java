@@ -98,7 +98,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
-        mTagsAdapter = new TagsAdapter(list);
+        mTagsAdapter = new TagsAdapter(this, list);
         mTagsAdapter.setOnItemClickListener((adapter, view, position) -> {
             TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
             Intent intent = new Intent(TagsActivity.this, VideosActivity.class);
@@ -274,6 +274,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView,4);
         }
     }
 
@@ -285,6 +286,7 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
         }
     }
 }

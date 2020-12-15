@@ -107,6 +107,8 @@ public class VideoPresenter extends Presenter<VideoContract.View> implements Bas
                 videosModel.getTagsSearchData(this, isLoad, type, title, page, limit, order);
             else if (type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE)
                 videosModel.getOtherData(this, isLoad, type, page, order, time, limit);
+            else if (type == QueryType.JAVS_TYPE)
+                videosModel.getJavsSearchData(this, isLoad, type, title, page, limit, order);
         }
     }
 }

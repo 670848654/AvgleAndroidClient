@@ -95,6 +95,7 @@ public class OpenSourceActivity extends BaseActivity {
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
+        setGridSpaceItemDecoration(mRecyclerView, 1);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SourceAdapter(list);
         adapter.openLoadAnimation();

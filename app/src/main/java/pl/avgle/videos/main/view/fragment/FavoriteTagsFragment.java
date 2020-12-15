@@ -91,7 +91,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
 
     public void initAdapter() {
         if (mTagsAdapter == null) {
-            mTagsAdapter = new TagsAdapter(list);
+            mTagsAdapter = new TagsAdapter(getActivity(), list);
             mTagsAdapter.setOnItemClickListener((adapter, view, position) -> {
                 TagsBean.ResponseBean.CollectionsBean bean = (TagsBean.ResponseBean.CollectionsBean) adapter.getItem(position);
                 Intent intent = new Intent(getActivity(), VideosActivity.class);
@@ -205,6 +205,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
             gridLayoutManager = new GridLayoutManager(getActivity(), 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, 4);
         }
     }
 
@@ -216,6 +217,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
             gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 3 : 2);
         }
     }
 

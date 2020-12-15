@@ -7,16 +7,20 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
@@ -26,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.wuyr.rippleanimation.RippleAnimation;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,6 +39,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import pl.avgle.videos.R;
@@ -58,7 +64,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     private List<ChannelBean.ResponseBean.CategoriesBean> list = new ArrayList<>();
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    private SearchView mSearchView;
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
     @BindView(R.id.nav_view)
@@ -75,9 +80,11 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     private ImageView headerImg;
     private TextView themeView;
     private boolean isChangingTheme = false;
+    private AlertDialog alertDialog;
 
     @Override
-    protected void initBeforeView() {}
+    protected void initBeforeView() {
+    }
 
     @Override
     protected int getLayout() {
@@ -157,11 +164,11 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         isChangingTheme = true;
         if (isDark) {
             isDarkTheme = false;
-            SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",false);
+            SharedPreferencesUtils.setParam(getApplicationContext(), "darkTheme", false);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         } else {
             isDarkTheme = true;
-            SharedPreferencesUtils.setParam(getApplicationContext(),"darkTheme",true);
+            SharedPreferencesUtils.setParam(getApplicationContext(), "darkTheme", true);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
     }
@@ -208,7 +215,8 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     }
 
     @Override
-    public void showLoadUserSuccessView(List<ChannelBean.ResponseBean.CategoriesBean> list) {}
+    public void showLoadUserSuccessView(List<ChannelBean.ResponseBean.CategoriesBean> list) {
+    }
 
     @Override
     public void showLoadErrorView(String msg) {
@@ -249,36 +257,70 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.channel_menu, menu);
-        final MenuItem item = menu.findItem(R.id.search);
-        mSearchView = (SearchView) item.getActionView();
-        mSearchView.setQueryHint(Utils.getString(R.string.search_text));
-        mSearchView.setMaxWidth(2000);
-        mSearchView.findViewById(androidx.appcompat.R.id.search_plate).setBackground(null);
-        mSearchView.findViewById(androidx.appcompat.R.id.submit_area).setBackground(null);
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        MenuItem menuItem = menu.findItem(R.id.search);
+        menuItem.setOnMenuItemClickListener(item -> {
+            if (Utils.isFastClick()) showSearchDialog();
+            return false;
+        });
+        return true;
+    }
+
+    /**
+     * 搜索
+     *
+     * @return
+     */
+    private void showSearchDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_search, null);
+        TextInputLayout til = view.findViewById(R.id.text_hint);
+        Spinner spinner = view.findViewById(R.id.spinner);
+        AtomicBoolean isJav = new AtomicBoolean(false);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (!query.isEmpty()) {
-                    mSearchView.onActionViewCollapsed();
-                    Utils.hideKeyboard(mSearchView);
-                    mSearchView.clearFocus();
-                    Intent intent = new Intent(ChannelActivity.this, VideosActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("type", QueryType.QUERY_TYPE);
-                    bundle.putString("name", query);
-                    bundle.putString("order", (String) SharedPreferencesUtils.getParam(ChannelActivity.this, "videos_order", "mr"));
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        isJav.set(false);
+                        til.setHint(getString(R.string.search_tag_text));
+                        break;
+                    case 1:
+                        isJav.set(true);
+                        til.setHint(getString(R.string.search_jav_text));
+                        break;
                 }
-                return true;
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
-        return true;
+        EditText et = view.findViewById(R.id.search_text);
+        builder.setPositiveButton(Utils.getString(R.string.confirm), null);
+        builder.setNegativeButton(Utils.getString(R.string.cancel), null);
+        builder.setCancelable(false);
+        alertDialog = builder.setView(view).create();
+        alertDialog.show();
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String text = et.getText().toString();
+            if (!text.trim().isEmpty()) {
+                Intent intent = new Intent(this, VideosActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("type", isJav.get() ? QueryType.JAVS_TYPE : QueryType.QUERY_TYPE);
+                bundle.putString("name", text);
+                bundle.putString("img", "");
+                bundle.putString("order", (String) SharedPreferencesUtils.getParam(this, "videos_order", "mr"));
+                intent.putExtras(bundle);
+                startActivity(intent);
+                Toast.makeText(this, isJav.get() ? Utils.getString(R.string.search_with_jav_number) :  Utils.getString(R.string.search_with_keyword), Toast.LENGTH_SHORT).show();
+                alertDialog.dismiss();
+            } else {
+                et.setError(Utils.getString(R.string.favorite_tag_dialog_error));
+                return;
+            }
+        });
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> alertDialog.dismiss());
     }
 
     @Override
@@ -320,9 +362,9 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
      */
     private void initAdapter() {
         if (Utils.checkHasNavigationBar(this))
-            mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
+            mRecyclerView.setPadding(0, 0, 0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
-        mChannelAdapter = new ChannelAdapter(list);
+        mChannelAdapter = new ChannelAdapter(this, list);
         mChannelAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
             switch (view.getId()) {
@@ -414,6 +456,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, 4);
         }
     }
 
@@ -425,8 +468,10 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
         }
     }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventState eventState) {
@@ -452,6 +497,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
             setHeaderImg();
 /*            if (isDarkTheme) getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             else getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);*/
+            if (list.size() > 0) mChannelAdapter.notifyDataSetChanged();
             navigationView.setBackgroundColor(isDarkTheme ? getResources().getColor(R.color.dark_navigation_color) : getResources().getColor(R.color.light_navigation_color));
             ColorStateList csl = new ColorStateList(states, isDarkTheme ? darkColors : lightColors);
             navigationView.setItemTextColor(csl);

@@ -1,5 +1,6 @@
 package pl.avgle.videos.adapter;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -12,26 +13,27 @@ import java.util.List;
 import pl.avgle.videos.R;
 import pl.avgle.videos.bean.TagsBean;
 import pl.avgle.videos.config.ImageConfig;
+import pl.avgle.videos.util.SharedPreferencesUtils;
 
 public class TagsAdapter extends BaseQuickAdapter<TagsBean.ResponseBean.CollectionsBean, BaseViewHolder> {
-
-    public TagsAdapter(List list) {
+    private Context context;
+    public TagsAdapter(Context context, List list) {
         super(R.layout.tags_item, list);
+        this.context = context;
     }
 
     @Override
     protected void convert(BaseViewHolder helper, TagsBean.ResponseBean.CollectionsBean item) {
         ImageView favoriteView = helper.getView(R.id.favorite_view);
-        if (item.isFavorite())
-            favoriteView.setVisibility(View.VISIBLE);
-        else
-            favoriteView.setVisibility(View.GONE);
+        boolean isDarkTheme =(Boolean) SharedPreferencesUtils.getParam(context,"darkTheme",true);
+        if (item.isFavorite()) favoriteView.setVisibility(View.VISIBLE);
+        else favoriteView.setVisibility(View.GONE);
         if (!item.getCover_url().equals("")) {
             ImageLoader.getInstance().displayImage(item.getCover_url(), (ImageView) helper.getView(R.id.collectionsImg), ImageConfig.getSimpleOptions());
             helper.setVisible(R.id.custom_tag, false);
         } else {
             helper.setVisible(R.id.custom_tag, true);
-            helper.setImageResource(R.id.collectionsImg, R.drawable.default_image);
+            helper.setImageResource(R.id.collectionsImg, isDarkTheme ? R.drawable.dark_header : R.drawable.light_header);
         }
         helper.setText(R.id.collectionsName, item.getTitle());
     }

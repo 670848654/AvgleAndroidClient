@@ -87,6 +87,7 @@ public class WebViewActivity extends BaseActivity {
     }
 
     public void initWebView() {
+        myWebView.setBackgroundColor(0);
         myWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         initHardwareAccelerate();
         myWebView.setWebViewClient(new WebViewClient() {

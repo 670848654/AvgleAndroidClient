@@ -276,7 +276,7 @@
     <color name="bluegrey900">#263238</color>
 
     <color name="default_line_color">#e0e0e0</color>
-    <color name="dark_bg">#303030</color>
+    <color name="dark_bg">#2f2f2f</color>
     <color name="default_text_color">#8C8C8C</color>
     <color name="rvlist_item_text_color">#FFFFFF</color>
     <color name="toolbar_color">#f90</color>
@@ -293,10 +293,10 @@
     <color name="colorPrimaryDark">#f90</color>
     <color name="colorAccent">#fb8c00</color>
 
-    <color name="window_bg">#FFF</color>
-    <color name="transparent">#424242</color>
+    <color name="window_bg">#FFFFFF</color>
+    <color name="item_bg">#FFFFFF</color>
 
-    <color name="webview_bg_color">#303030</color>
+    <color name="webview_bg_color">#000000</color>
 
     <color name="light_toolbar_color">#f90</color>
     <color name="light_window_color">#FFFFFF</color>
@@ -304,9 +304,9 @@
     <color name="light_navigation_text_color">#000000</color>
     <color name="light_navigation_tini_color">#f90</color>
 
-    <color name="dark_toolbar_color">#303030</color>
-    <color name="dark_window_color">#303030</color>
-    <color name="dark_navigation_color">#303030</color>
+    <color name="dark_toolbar_color">#2f2f2f</color>
+    <color name="dark_window_color">#2f2f2f</color>
+    <color name="dark_navigation_color">#2f2f2f</color>
     <color name="dark_navigation_text_color">#FFFFFF</color>
     <color name="dark_navigation_tini_color">#f90</color>
 </resources>

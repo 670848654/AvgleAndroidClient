@@ -23,6 +23,8 @@ import pl.avgle.videos.adapter.SelectAdapter;
 import pl.avgle.videos.application.Avgle;
 import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
+import pl.avgle.videos.custom.GridSpaceItemDecoration;
+import pl.avgle.videos.util.Utils;
 
 public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment {
     protected boolean isFragmentVisible;
@@ -40,6 +42,7 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
     protected List<SelectBean> selectBeanList;
     protected Unbinder mUnBinder;
     protected boolean isPortrait;
+    protected GridSpaceItemDecoration gridSpaceItemDecoration;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -124,6 +127,12 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
         selectRecyclerView.setAdapter(selectAdapter);
         mBottomSheetDialog = new BottomSheetDialog(getActivity());
         mBottomSheetDialog.setContentView(selectView);
+    }
+
+    protected void setGridSpaceItemDecoration(RecyclerView recyclerView, int spanCount) {
+        if (gridSpaceItemDecoration != null) recyclerView.removeItemDecoration(gridSpaceItemDecoration);
+        gridSpaceItemDecoration = new GridSpaceItemDecoration(spanCount, Utils.dpToPx(getActivity(), 5), true);
+        recyclerView.addItemDecoration(gridSpaceItemDecoration);
     }
 
     protected abstract View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);

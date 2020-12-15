@@ -45,18 +45,6 @@ public interface AvgleService {
     Call<TagsBean> getTags(@Path("page") int page, @Query("limit") int limit);
 
     /**
-     * 获取tags query视频列表
-     * Search videos api
-     * 参数
-     * query URL escaped non empty string (三上悠亜)
-     * page [0, +inf)
-     * limit [1, 250]
-     */
-    @GET("v1/search/{title}/{page}")
-    @Headers({"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36"})
-    Call<VideoBean> getTagsSearchVideos(@Path("title") String title, @Path("page") int page, @Query("limit") int limit, @Query("o") String order);
-
-    /**
      * 获取视频列表
      * List all videos api
      * 参数
@@ -70,4 +58,29 @@ public interface AvgleService {
     @GET("v1/videos/{page}")
     @Headers({"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36"})
     Call<VideoBean> getOtherVideos(@Path("page") int page, @Query("o") String order, @Query("t") String time, @Query("limit") int limit);
+
+    /**
+     * 获取tags query视频列表
+     * Search videos api
+     * 参数
+     * query URL escaped non empty string (三上悠亜)
+     * page [0, +inf)
+     * limit [1, 250]
+     */
+    @GET("v1/search/{title}/{page}")
+    @Headers({"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36"})
+    Call<VideoBean> getTagsSearchVideos(@Path("title") String title, @Path("page") int page, @Query("limit") int limit, @Query("o") String order);
+
+    /**
+     * 获取tags query视频列表
+     * Search videos api
+     * 参数
+     * query URL escaped non empty string (sdde-480)
+     * page [0, +inf)
+     * limit [1, 250]
+     */
+    @GET("v1/jav/{title}/{page}")
+    @Headers({"User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36"})
+    Call<VideoBean> getJavsSearchVideos(@Path("title") String title, @Path("page") int page, @Query("limit") int limit, @Query("o") String order);
+
 }

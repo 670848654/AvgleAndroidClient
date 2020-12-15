@@ -17,4 +17,6 @@ public class QueryType {
     public static final int FEATURED_TYPE = 6;
     //更新
     public static final int UPDATE_TYPE = 7;
+    //番号搜索
+    public static final int JAVS_TYPE = 8;
 }

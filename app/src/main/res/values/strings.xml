@@ -26,6 +26,11 @@
         <item>Forever</item>
     </string-array>
 
+    <string-array name="search_arr">
+        <item>关键字</item>
+        <item>番号</item>
+    </string-array>
+
     <string-array name="favorite_arr">
 <!--        <item>分类</item>-->
         <item>标签</item>
@@ -54,6 +59,12 @@
 
     <string name="open_source_title">开源相关</string>
 
+    <string name="search_type">匹配类型：</string>
+    <string name="search_tag_text">请输入相关关键字</string>
+    <string name="search_jav_text">请输入相关番号</string>
+    <string name="search_with_keyword">通过关键字搜索中</string>
+    <string name="search_with_jav_number">通过番号搜索中</string>
+    <string name="confirm">确定</string>
     <string name="cancel">取消</string>
     <string name="favorite_video_empty_error">无相关视频</string>
     <string name="empty_channel">收藏为空</string>
@@ -79,7 +90,7 @@
     <string name="videos_long">收藏的视频</string>
     <string name="videos_short">收藏的视频</string>
     <string name="final_compile">最后编译</string>
-    <string name="final_compile_time">2020年12月7日</string>
+    <string name="final_compile_time">2020年12月15日</string>
 
     <string name="disableMsg">不可用</string>
     <string name="favoriteShortName">收藏夹</string>

@@ -3,7 +3,7 @@
     <shortcut
         android:shortcutId="channel"
         android:enabled="true"
-        android:icon="@drawable/heart"
+        android:icon="@drawable/ic_shortcut_loyalty"
         android:shortcutShortLabel="@string/favoriteShortName"
         android:shortcutLongLabel="@string/favoriteLongName"
         android:shortcutDisabledMessage="@string/disableMsg">

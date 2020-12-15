@@ -70,7 +70,7 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
 
     public void initAdapter() {
         if (mChannelAdapter == null) {
-            mChannelAdapter = new ChannelAdapter(list);
+            mChannelAdapter = new ChannelAdapter(getActivity(), list);
             mChannelAdapter.setOnItemChildClickListener((adapter, view, position) -> {
                 ChannelBean.ResponseBean.CategoriesBean bean = (ChannelBean.ResponseBean.CategoriesBean) adapter.getItem(position);
                 switch (view.getId()) {

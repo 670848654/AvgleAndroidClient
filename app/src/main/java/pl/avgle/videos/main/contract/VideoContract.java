@@ -14,6 +14,9 @@ public interface VideoContract {
         //获取tags query video list
         void getTagsSearchData(LoadDataCallBack callBack, boolean isLoad, int type, String title, int page, int limit, String order);
 
+        //获取番号 query video list
+        void getJavsSearchData(LoadDataCallBack callBack, boolean isLoad, int type, String title, int page, int limit, String order);
+
         //获取其他 list
         void getOtherData(LoadDataCallBack callBack, boolean isLoad, int type, int page, String order, String time, int limit);
 

@@ -5,6 +5,7 @@
     android:paddingTop="25dp"
     android:paddingLeft="25dp"
     android:paddingRight="25dp"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
