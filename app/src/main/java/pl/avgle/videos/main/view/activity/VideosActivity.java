@@ -522,6 +522,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     public void showErrorView(String text) {
         mSwipe.setRefreshing(false);
+        if (!isPortrait) mRecyclerView.setNestedScrollingEnabled(false);
         errorTitle.setText(text);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         mVideosAdapter.setEmptyView(errorView);
