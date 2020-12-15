@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="25dp"
+    android:paddingLeft="25dp"
+    android:paddingRight="25dp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_centerVertical="true"
+            android:text="@string/search_type"
+            android:textSize="16sp"
+            android:textColor="@color/text_color_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_toRightOf="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/search_arr"/>
+
+    </RelativeLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_hint"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_tag_text">
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/search_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"
+            app:met_baseColor="@color/text_color_primary"
+            app:met_primaryColor="@color/pornhub"
+            app:met_errorColor="@color/red500" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>
