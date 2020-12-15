@@ -4,16 +4,13 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,6 +23,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.jzvd.Jzvd;
@@ -170,7 +170,6 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                 mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
                 mBottomSheetDialog.show();
             });
-            mRecyclerView.setHasFixedSize(true);
             mRecyclerView.setAdapter(mVideosAdapter);
         }
     }
@@ -223,19 +222,18 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
      * 移除收藏
      */
     private void removeVideo(int position, String vid) {
+        DatabaseUtil.deleteVideo(vid);
+        mVideosAdapter.remove(position);
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getVid().equals(vid)) {
-                if (isSearch)
-                    list.remove(i);
-                mVideosAdapter.remove(position);
+                list.remove(i);
                 break;
             }
         }
-        DatabaseUtil.deleteVideo(vid);
         if (list.size() == 0 && searchList.size() == 0) {
-            mVideosAdapter.setNewData(list);
+            mVideosAdapter.setNewData(new ArrayList<>());
             showLoadErrorView(Utils.getString(R.string.empty_channel));
-        } else if (searchList.size() == 0) {
+        } else if (isSearch && searchList.size() == 0) {
             showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
         }
     }
@@ -257,8 +255,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void onEvent(EventState eventState) {
         isPortrait = eventState.isPortrait();
         if (eventState.getState() == 2 && list.size() > 0) {
-            mVideosAdapter.setNewData(new ArrayList<>());
-            loadData();
+           loadData();
         }
     }
 
@@ -306,11 +303,12 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void showLoadSuccessView(VideoBean bean, boolean isLoad) {}
 
     @Override
-    public void showUserFavoriteView(List<VideoBean.ResponseBean.VideosBean> list) {
+    public void showUserFavoriteView(List<VideoBean.ResponseBean.VideosBean> videosBeanList) {
         loading.setVisibility(View.GONE);
-        this.list = list;
+        list = videosBeanList;
+        Log.e("listSize", list.size() + "");
+        mVideosAdapter.setNewData(list);
         setRecyclerView();
-        mVideosAdapter.setNewData(this.list);
     }
 
     @Override
@@ -360,11 +358,8 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                     searchList.add(list.get(i));
             }
             mVideosAdapter.setNewData(searchList);
-            if (searchList.size() == 0) {
-                errorTitle.setText(Utils.getString(R.string.favorite_video_empty_error));
-                setRecyclerView();
-                mVideosAdapter.setEmptyView(errorView);
-            }
+            if (searchList.size() == 0)
+                showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
         }
         mRecyclerView.scrollToPosition(0);
     }

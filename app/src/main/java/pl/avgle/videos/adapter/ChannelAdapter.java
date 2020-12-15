@@ -3,14 +3,13 @@ package pl.avgle.videos.adapter;
 import android.content.Context;
 import android.widget.ImageView;
 
-import androidx.cardview.widget.CardView;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
 
+import androidx.cardview.widget.CardView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.bean.ChannelBean;
 import pl.avgle.videos.config.ImageConfig;

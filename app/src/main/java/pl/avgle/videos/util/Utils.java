@@ -17,16 +17,15 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import androidx.annotation.ArrayRes;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
-
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import androidx.annotation.ArrayRes;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import pl.avgle.videos.BuildConfig;
 import pl.avgle.videos.R;
 import pl.avgle.videos.main.view.activity.VideosActivity;

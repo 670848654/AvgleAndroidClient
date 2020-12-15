@@ -9,10 +9,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -23,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.avgle.videos.R;
@@ -131,6 +130,7 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     private void removeTag(int position, String title) {
         DatabaseUtil.deleteTag(title);
         mTagsAdapter.remove(position);
+        list.remove(position);
         if (list.size() == 0) {
             mTagsAdapter.setNewData(list);
             showLoadErrorView(Utils.getString(R.string.empty_channel));

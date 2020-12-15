@@ -20,13 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
+import androidx.annotation.RequiresApi;
 import butterknife.BindView;
 import butterknife.OnClick;
 import pl.avgle.videos.R;

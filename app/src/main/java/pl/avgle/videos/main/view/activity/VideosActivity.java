@@ -17,14 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -42,6 +34,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
@@ -132,10 +131,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     @Override
     protected void loadData() {
-        list.clear();
-        isLoad = false;
-        nowPage = 0;
-        mPresenter = createPresenter();
         mPresenter.loadData();
     }
 
@@ -181,6 +176,10 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         mSwipe.setColorSchemeResources(R.color.colorAccent, R.color.blue500, R.color.purple500);
         mSwipe.setOnRefreshListener(() -> {
             mVideosAdapter.setNewData(new ArrayList<>());
+            list.clear();
+            isLoad = false;
+            nowPage = 0;
+            mPresenter = createPresenter();
             loadData();
         });
     }
@@ -476,6 +475,10 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                         tagsBean = null;
                         favoriteItem.setVisible(false);
                         Toast.makeText(this, isJav.get() ? Utils.getString(R.string.search_with_jav_number) :  Utils.getString(R.string.search_with_keyword), Toast.LENGTH_SHORT).show();
+                        list.clear();
+                        isLoad = false;
+                        nowPage = 0;
+                        mPresenter = createPresenter();
                         loadData();
                         alertDialog.dismiss();
                     } else {
