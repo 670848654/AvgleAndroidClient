@@ -1,19 +1,24 @@
 package pl.avgle.videos.main.view.activity;
 
+import android.content.res.Configuration;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.FavoriteFragmentAdapter;
+import pl.avgle.videos.bean.ChangeState;
 import pl.avgle.videos.main.base.BaseActivity;
 import pl.avgle.videos.main.base.Presenter;
 import pl.avgle.videos.util.Utils;
@@ -58,10 +63,19 @@ public class FavoriteActivity extends BaseActivity implements ViewPager.OnPageCh
     }
 
     @Override
-    protected void setLandscape() {}
+    protected void setLandscape() {
+        EventBus.getDefault().post(new ChangeState(isPortrait));
+    }
 
     @Override
-    protected void setPortrait() {}
+    protected void setPortrait() {
+        EventBus.getDefault().post(new ChangeState(isPortrait));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent() {
+
+    }
 
     private void initToolbar() {
         toolbar.setTitle(getResources().getString(R.string.favorite_title));

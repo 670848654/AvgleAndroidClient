@@ -1,7 +1,10 @@
 package pl.avgle.videos.adapter;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.cardview.widget.CardView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -12,16 +15,22 @@ import java.util.List;
 import pl.avgle.videos.R;
 import pl.avgle.videos.bean.VideoBean;
 import pl.avgle.videos.config.ImageConfig;
+import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
 public class VideosAdapter extends BaseQuickAdapter<VideoBean.ResponseBean.VideosBean, BaseViewHolder> {
-
-    public VideosAdapter(List list) {
+    private Context context;
+    public VideosAdapter(Context context, List list) {
         super(R.layout.videos_item, list);
+        this.context = context;
     }
 
     @Override
     protected void convert(BaseViewHolder helper, VideoBean.ResponseBean.VideosBean item) {
+        boolean isDarkTheme =(Boolean) SharedPreferencesUtils.getParam(context,"darkTheme",false);
+        CardView cardView = helper.getView(R.id.videos_card_view);
+        cardView.setCardBackgroundColor(isDarkTheme ? context.getResources().getColor(R.color.dark_window_color ) : context.getResources().getColor(R.color.light_window_color ));
+        helper.setTextColor(R.id.videosName, isDarkTheme ? context.getResources().getColor(R.color.dark_navigation_text_color) : context.getResources().getColor(R.color.light_navigation_text_color));
         ImageLoader.getInstance().displayImage(item.getPreview_url(), (ImageView) helper.getView(R.id.videos_img), ImageConfig.getSimpleOptions());
         ImageView favoriteView = helper.getView(R.id.favorite_view);
         if (item.isFavorite())

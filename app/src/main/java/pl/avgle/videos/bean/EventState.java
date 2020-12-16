@@ -6,8 +6,9 @@ public class EventState {
 
     private boolean isPortrait; // true:portrait false:landscape
 
-    public EventState(int state) {
+    public EventState(int state, boolean isPortrait) {
         this.state = state;
+        this.isPortrait = isPortrait;
     }
 
     public EventState(boolean isPortrait) {

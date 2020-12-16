@@ -17,6 +17,14 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -34,13 +42,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
@@ -62,7 +63,7 @@ import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.StatusBarUtil;
 import pl.avgle.videos.util.Utils;
 
-public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresenter> implements VideoContract.View,JZPlayer.CompleteListener {
+public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresenter> implements VideoContract.View, JZPlayer.PlayErrorListener, JZPlayer.CompleteListener {
     @BindView(R.id.appBarLayout)
     AppBarLayout appBarLayout;
     @BindView(R.id.rv_list)
@@ -101,10 +102,16 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     int position = 0;
     private GridLayoutManager gridLayoutManager;
     private AlertDialog alertDialog;
+    
+    @Override
+    public void playError() {
+        removePlayer();
+        Toast.makeText(this, Utils.getString(R.string.play_preview_error), Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void complete() {
-        removePlayer(player);
+        removePlayer();
     }
 
     @Override
@@ -191,7 +198,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         if (Utils.checkHasNavigationBar(this))
             mRecyclerView.setPadding(0,0,0, Utils.getNavigationBarHeight(this));
         mRecyclerView.setHasFixedSize(true);
-        mVideosAdapter = new VideosAdapter(list);
+        mVideosAdapter = new VideosAdapter(this, list);
         mVideosAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
@@ -199,9 +206,9 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
             @Override
             public void onChildViewDetachedFromWindow(@NonNull View view) {
-                JZPlayer player = view.findViewById(R.id.player);
-                hdView = view.findViewById(R.id.hd_view);
-                detachedFromWindow(player);
+//                player = view.findViewById(R.id.player);
+//                hdView = view.findViewById(R.id.hd_view);
+                if (view.findViewById(R.id.player) == player) detachedFromWindow();
             }
         });
         mVideosAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -221,11 +228,10 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 ImageView favoriteView = view.findViewById(R.id.favorite_view);
                 switch (selectPosition) {
                     case 0:
-                        removePlayer(player);
                         index = position;
                         player = view.findViewById(R.id.player);
                         hdView = view.findViewById(R.id.hd_view);
-                        player.setListener(this);
+                        player.setListener(this, this);
                         openPlayer(player, bean);
                         break;
                     case 1:
@@ -401,27 +407,22 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         player.startVideo();
     }
 
-    public void detachedFromWindow (JZPlayer player) {
-        if (player != null) {
-            if (player == mVideosAdapter.getViewByPosition(index, R.id.player)) {
-                removePlayerView(player);
-            }
-        }
+    public void detachedFromWindow () {
+        if (player != null) removePlayerView();
     }
 
-    public void removePlayer(JZPlayer player) {
-        if (player != null) {
-            removePlayerView(player);
-        }
+    public void removePlayer() {
+        if (player != null)  removePlayerView();
     }
 
-    public void removePlayerView(JZPlayer player) {
+    public void removePlayerView() {
         player.releaseAllVideos();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         player.setVisibility(View.GONE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
         hdView.setVisibility(View.VISIBLE);
         hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
+        player = null;
     }
 
     @Override
@@ -537,7 +538,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         DatabaseUtil.addVideo(bean);
         application.showToastMsg(bean.getVid() + "\n" + Utils.getString(R.string.favorite_success));
         favoriteView.setVisibility(View.VISIBLE);
-        EventBus.getDefault().post(new EventState(2));
+        EventBus.getDefault().post(new EventState(2, isPortrait));
     }
 
     /**
@@ -547,7 +548,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         DatabaseUtil.deleteVideo(bean.getVid());
         application.showToastMsg(bean.getVid() + "\n" + Utils.getString(R.string.remove_favorite_success));
         favoriteView.setVisibility(View.GONE);
-        EventBus.getDefault().post(new EventState(2));
+        EventBus.getDefault().post(new EventState(2, isPortrait));
     }
 
     @Override
@@ -601,13 +602,13 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     protected void setLandscape() {
         setAppBarLayout(false);
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, 4);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             appBarLayout.setExpanded(false, false);
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, 4);
         }
     }
 
@@ -615,14 +616,13 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     protected void setPortrait() {
         setAppBarLayout(true);
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView,Utils.isTabletDevice(this) ? 2 : 1);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-            if (position > 3)
-                appBarLayout.setExpanded(false, false);
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 2 : 1);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView,Utils.isTabletDevice(this) ? 2 : 1);
+            if (position > 3) appBarLayout.setExpanded(false, false);
         }
     }
 
@@ -649,7 +649,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         application.showToastMsg(title + "\n" + Utils.getString(R.string.remove_favorite_success));
         favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_border_white_48dp));
         favoriteItem.setTitle(Utils.getString(R.string.add_favorite));
-        EventBus.getDefault().post(new EventState(1));
+        EventBus.getDefault().post(new EventState(1, isPortrait));
     }
 
     /**
@@ -673,6 +673,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         application.showToastMsg(title + "\n" + Utils.getString(R.string.favorite_success));
         favoriteItem.setIcon(getDrawable(R.drawable.baseline_star_white_48dp));
         favoriteItem.setTitle(Utils.getString(R.string.remove_favorite));
-        EventBus.getDefault().post(new EventState(1));
+        EventBus.getDefault().post(new EventState(1, isPortrait));
     }
 }

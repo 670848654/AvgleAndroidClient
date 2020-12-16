@@ -7,6 +7,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.greenrobot.eventbus.EventBus;
@@ -16,10 +21,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.TagsAdapter;
@@ -268,24 +269,25 @@ public class TagsActivity extends BaseActivity<TagsContract.View, TagsPresenter>
     @Override
     protected void setLandscape() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView,4);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView,4);
+
         }
     }
 
     @Override
     protected void setPortrait() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
         }
     }
 }

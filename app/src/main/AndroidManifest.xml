@@ -47,7 +47,7 @@
             android:name=".main.view.activity.VideosActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden|uiMode"
             android:screenOrientation="unspecified" />
-        <!-- 设置 -->
+        <!-- 收藏 -->
         <activity
             android:name=".main.view.activity.FavoriteActivity"
             android:configChanges="screenLayout|orientation|screenSize|smallestScreenSize|keyboardHidden|uiMode"

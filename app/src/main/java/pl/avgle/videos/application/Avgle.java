@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -17,9 +19,9 @@ import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
 
-import androidx.appcompat.app.AppCompatDelegate;
 import cn.jzvd.JzvdStd;
 import pl.avgle.videos.custom.JzExoPlayer;
+import pl.avgle.videos.util.CrashHandler;
 import pl.avgle.videos.util.Utils;
 
 public class Avgle extends Application {
@@ -33,6 +35,7 @@ public class Avgle extends Application {
         appContext = this;
         Utils.init(this);
         UnlimitedDiskCache(this);
+        CrashHandler.getsInstance().init(this);
     }
 
     public void UnlimitedDiskCache(Context context) {

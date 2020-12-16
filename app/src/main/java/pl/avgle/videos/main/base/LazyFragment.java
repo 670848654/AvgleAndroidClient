@@ -2,10 +2,15 @@ package pl.avgle.videos.main.base;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -13,13 +18,11 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.Unbinder;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.SelectAdapter;
 import pl.avgle.videos.application.Avgle;
+import pl.avgle.videos.bean.ChangeState;
 import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.custom.GridSpaceItemDecoration;
@@ -154,19 +157,12 @@ public  abstract class LazyFragment<V, P extends Presenter<V>> extends Fragment 
 
     public abstract void onEvent(EventState eventState);
 
+    public abstract void onChangeState(ChangeState changeState);
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            isPortrait = false;
-            setLandscape();
-        } else {
-            isPortrait = true;
-            setPortrait();
-        }
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) isPortrait = false;
+         else isPortrait = true;
     }
-
-    protected abstract void setLandscape();
-
-    protected abstract void setPortrait();
 }

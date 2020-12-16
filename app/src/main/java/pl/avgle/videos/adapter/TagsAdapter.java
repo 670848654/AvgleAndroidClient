@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.cardview.widget.CardView;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,7 +27,9 @@ public class TagsAdapter extends BaseQuickAdapter<TagsBean.ResponseBean.Collecti
     @Override
     protected void convert(BaseViewHolder helper, TagsBean.ResponseBean.CollectionsBean item) {
         ImageView favoriteView = helper.getView(R.id.favorite_view);
-        boolean isDarkTheme =(Boolean) SharedPreferencesUtils.getParam(context,"darkTheme",true);
+        boolean isDarkTheme =(Boolean) SharedPreferencesUtils.getParam(context,"darkTheme",false);
+        CardView cardView = helper.getView(R.id.channel_card_view);
+        cardView.setCardBackgroundColor(isDarkTheme ? context.getResources().getColor(R.color.dark_window_color ) : context.getResources().getColor(R.color.light_window_color ));
         if (item.isFavorite()) favoriteView.setVisibility(View.VISIBLE);
         else favoriteView.setVisibility(View.GONE);
         if (!item.getCover_url().equals("")) {

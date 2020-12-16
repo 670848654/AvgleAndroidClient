@@ -4,13 +4,17 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,19 +27,18 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.jzvd.Jzvd;
 import jp.wasabeef.blurry.Blurry;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.VideosAdapter;
+import pl.avgle.videos.bean.ChangeState;
 import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.VideoBean;
 import pl.avgle.videos.config.QueryType;
+import pl.avgle.videos.custom.CustomLoadMoreView;
 import pl.avgle.videos.custom.JZPlayer;
 import pl.avgle.videos.database.DatabaseUtil;
 import pl.avgle.videos.main.base.LazyFragment;
@@ -46,7 +49,7 @@ import pl.avgle.videos.main.view.activity.WebViewActivity;
 import pl.avgle.videos.util.SharedPreferencesUtils;
 import pl.avgle.videos.util.Utils;
 
-public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, VideoPresenter> implements VideoContract.View, JZPlayer.CompleteListener,MaterialSearchBar.OnSearchActionListener {
+public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, VideoPresenter> implements VideoContract.View, JZPlayer.PlayErrorListener, JZPlayer.CompleteListener, MaterialSearchBar.OnSearchActionListener {
     @BindView(R.id.rv_list)
     RecyclerView mRecyclerView;
     @BindView(R.id.loading)
@@ -59,12 +62,18 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     private JZPlayer player;
     private RelativeLayout hdView;
     private int index;
-    private List<VideoBean.ResponseBean.VideosBean> searchList = new ArrayList<>();
+//    private List<VideoBean.ResponseBean.VideosBean> searchList = new ArrayList<>();
     private boolean isSearch = false;
     private FloatingActionButton fab;
 
     int position = 0;
     private GridLayoutManager gridLayoutManager;
+    private int limit = 50;
+    //是否是第一次加载
+    protected boolean isLoad = false;
+    protected boolean isErr = true;
+    private String selection = "";
+    private int videosCount;
 
     @Override
     protected View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,12 +117,12 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
 
     @Override
     protected VideoPresenter createPresenter() {
-        return new VideoPresenter(true, this);
+        return new VideoPresenter(true, selection, list.size(), limit, this);
     }
 
     public void initAdapter() {
         if (mVideosAdapter == null) {
-            mVideosAdapter = new VideosAdapter(list);
+            mVideosAdapter = new VideosAdapter(getActivity(), list);
             mVideosAdapter.bindToRecyclerView(mRecyclerView);
             mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
                 @Override
@@ -143,7 +152,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                             index = position;
                             player = view.findViewById(R.id.player);
                             hdView = view.findViewById(R.id.hd_view);
-                            player.setListener(this);
+                            player.setListener(this, this);
                             openPlayer(player, bean);
                             break;
                         case 1:
@@ -170,8 +179,28 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                 mBottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
                 mBottomSheetDialog.show();
             });
+            mVideosAdapter.setLoadMoreView(new CustomLoadMoreView());
+            mVideosAdapter.setOnLoadMoreListener(() -> mRecyclerView.postDelayed(() -> {
+                if (list.size() >= videosCount) {
+                    mVideosAdapter.loadMoreEnd();
+                } else {
+                    if (isErr) {
+                        isLoad = true;
+                        mPresenter = createPresenter();
+                        loadData();
+                    } else {
+                        isErr = true;
+                        mVideosAdapter.loadMoreFail();
+                    }
+                }
+            }, 500), mRecyclerView);
             mRecyclerView.setAdapter(mVideosAdapter);
         }
+    }
+
+    public void setLoadState(boolean loadState) {
+        isErr = loadState;
+        mVideosAdapter.loadMoreComplete();
     }
 
     public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
@@ -224,18 +253,9 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     private void removeVideo(int position, String vid) {
         DatabaseUtil.deleteVideo(vid);
         mVideosAdapter.remove(position);
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getVid().equals(vid)) {
-                list.remove(i);
-                break;
-            }
-        }
-        if (list.size() == 0 && searchList.size() == 0) {
-            mVideosAdapter.setNewData(new ArrayList<>());
-            showLoadErrorView(Utils.getString(R.string.empty_channel));
-        } else if (isSearch && searchList.size() == 0) {
-            showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
-        }
+        if (list.size() == 0 )
+            if (isSearch) showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
+            else showLoadErrorView(Utils.getString(R.string.empty_channel));
     }
 
     public void initSearchBar() {
@@ -247,6 +267,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
 
     @Override
     protected void loadData() {
+        videosCount = DatabaseUtil.queryVideosCount(selection);
         mPresenter.loadData();
     }
 
@@ -255,43 +276,51 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void onEvent(EventState eventState) {
         isPortrait = eventState.isPortrait();
         if (eventState.getState() == 2 && list.size() > 0) {
-           loadData();
+            if (!isSearch) loadData();
         }
     }
 
     @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChangeState(ChangeState changeState) {
+        if (changeState.isPortrait()) setPortrait();
+        else setLandscape();
+    }
+
     protected void setLandscape() {
-        if (isSearch && searchList.size() > 0)
-            setLandscapeRecyclerView();
-        else if (!isSearch && list.size() > 0)
-            setLandscapeRecyclerView();
+        setLandscapeRecyclerView();
     }
 
     private void setLandscapeRecyclerView() {
-        if (gridLayoutManager != null)
-            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        gridLayoutManager = new GridLayoutManager(getActivity(), 4);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
-        setGridSpaceItemDecoration(mRecyclerView, 4);
+        if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, 4);
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(getActivity(), 4);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
     }
 
-    @Override
     protected void setPortrait() {
-        if (isSearch && searchList.size() > 0)
-            setPortraitRecyclerView();
-        else if (!isSearch && list.size() > 0)
-            setPortraitRecyclerView();
-
+        setPortraitRecyclerView();
     }
 
     private void setPortraitRecyclerView() {
-        if (gridLayoutManager != null)
-            position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 2 : 1);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.getLayoutManager().scrollToPosition(position);
-        setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 2 : 1);
+        if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 2 : 1);
+            if (gridLayoutManager != null)
+                position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 2 : 1);
+            mRecyclerView.setLayoutManager(gridLayoutManager);
+            mRecyclerView.getLayoutManager().scrollToPosition(position);
+        }
+    }
+
+    @Override
+    public void playError() {
+        removePlayer(player);
+        Toast.makeText(getActivity(), Utils.getString(R.string.play_preview_error), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -305,10 +334,13 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     @Override
     public void showUserFavoriteView(List<VideoBean.ResponseBean.VideosBean> videosBeanList) {
         loading.setVisibility(View.GONE);
-        list = videosBeanList;
-        Log.e("listSize", list.size() + "");
-        mVideosAdapter.setNewData(list);
-        setRecyclerView();
+        setLoadState(true);
+        if (!isLoad) {
+            list = videosBeanList;
+            mVideosAdapter.setNewData(list);
+            setRecyclerView();
+        } else
+            mVideosAdapter.addData(videosBeanList);
     }
 
     @Override
@@ -317,7 +349,9 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     @Override
     public void showLoadErrorView(String msg) {
         loading.setVisibility(View.GONE);
-        errorTitle.setText(msg);
+        setLoadState(false);
+        if (isSearch) errorTitle.setText(Utils.getString(R.string.favorite_video_empty_error));
+        else errorTitle.setText(msg);
         mRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 1));
         mVideosAdapter.setEmptyView(errorView);
     }
@@ -346,22 +380,16 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     public void onSearchConfirmed(CharSequence text) {
         Utils.hideKeyboard(searchBar);
         setSearchBarGone();
-        searchList.clear();
+        list.clear();
         if (text.toString().isEmpty()) {
             isSearch = false;
-            setRecyclerView();
-            mVideosAdapter.setNewData(list);
+            selection = "";
         } else {
             isSearch = true;
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getKeyword().toLowerCase().contains(text.toString().toLowerCase()) || list.get(i).getTitle().toLowerCase().contains(text.toString().toLowerCase()))
-                    searchList.add(list.get(i));
-            }
-            mVideosAdapter.setNewData(searchList);
-            if (searchList.size() == 0)
-                showLoadErrorView(Utils.getString(R.string.favorite_video_empty_error));
+            selection = text.toString();
         }
-        mRecyclerView.scrollToPosition(0);
+        mPresenter = createPresenter();
+        loadData();
     }
 
     @Override

@@ -32,5 +32,5 @@
         style="@style/MaterialSearchBarLight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:mt_hint="Search" />
+        app:mt_hint="@string/favorite_search_video_hint" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

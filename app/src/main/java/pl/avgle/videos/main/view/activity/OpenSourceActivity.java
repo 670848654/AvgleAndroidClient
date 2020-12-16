@@ -1,12 +1,13 @@
 package pl.avgle.videos.main.view.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.SourceAdapter;

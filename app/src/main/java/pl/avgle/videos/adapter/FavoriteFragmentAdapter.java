@@ -2,12 +2,13 @@ package pl.avgle.videos.adapter;
 
 import android.view.ViewGroup;
 
-import java.util.HashMap;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+
+import java.util.HashMap;
+
 import pl.avgle.videos.main.view.fragment.FavoriteTagsFragment;
 import pl.avgle.videos.main.view.fragment.FavoriteVideosFragment;
 

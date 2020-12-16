@@ -18,6 +18,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.wuyr.rippleanimation.RippleAnimation;
@@ -30,16 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.ChannelAdapter;
@@ -450,24 +451,24 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     @Override
     protected void setLandscape() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, 4);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(this, 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
-            mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, 4);
+            if (position > 0) mRecyclerView.getLayoutManager().scrollToPosition(position);
         }
     }
 
     @Override
     protected void setPortrait() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(this, Utils.isTabletDevice(this) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
-            mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(this) ? 3 : 2);
+            if (position > 0) mRecyclerView.getLayoutManager().scrollToPosition(position);
         }
     }
 
@@ -492,7 +493,7 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
                 getResources().getColor(R.color.dark_navigation_tini_color)
         };
         if (isChangingTheme) {
-            RippleAnimation.create(themeView).setDuration(800).start();
+            RippleAnimation.create(themeView).setDuration(1000).start();
             setHeaderImg();
 /*            if (isDarkTheme) getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             else getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);*/

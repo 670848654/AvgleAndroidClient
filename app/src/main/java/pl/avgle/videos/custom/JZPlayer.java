@@ -9,7 +9,8 @@ import cn.jzvd.JZDataSource;
 import cn.jzvd.JzvdStd;
 
 public class JZPlayer extends JzvdStd {
-    private CompleteListener listener;
+    private PlayErrorListener playErrorListener;
+    private CompleteListener completeListener;
 
     public JZPlayer(Context context) {
         super(context);
@@ -19,8 +20,13 @@ public class JZPlayer extends JzvdStd {
         super(context, attrs);
     }
 
-    public void setListener(CompleteListener listener) {
-        this.listener = listener;
+    public void setListener(PlayErrorListener playErrorListener, CompleteListener completeListener) {
+        this.playErrorListener = playErrorListener;
+        this.completeListener = completeListener;
+    }
+
+    public interface PlayErrorListener {
+        void playError();
     }
 
     public interface CompleteListener {
@@ -36,7 +42,13 @@ public class JZPlayer extends JzvdStd {
     @Override
     public void onAutoCompletion() {
         super.onAutoCompletion();
-        listener.complete();
+        completeListener.complete();
+    }
+
+    @Override
+    public void onStateError() {
+        super.onStateError();
+        playErrorListener.playError();
     }
 
     @Override

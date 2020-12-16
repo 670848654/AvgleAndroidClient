@@ -21,7 +21,7 @@ public interface VideoContract {
         void getOtherData(LoadDataCallBack callBack, boolean isLoad, int type, int page, String order, String time, int limit);
 
         //获取用户收藏 list
-        void getUserVideosData(LoadDataCallBack callBack);
+        void getUserVideosData(String selection, int offset, int limit, LoadDataCallBack callBack);
     }
 
     interface View extends BaseView {

@@ -9,6 +9,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -19,13 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.TagsAdapter;
+import pl.avgle.videos.bean.ChangeState;
 import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
 import pl.avgle.videos.bean.TagsBean;
@@ -198,26 +200,31 @@ public class FavoriteTagsFragment extends LazyFragment<TagsContract.View, TagsPr
     }
 
     @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChangeState(ChangeState changeState) {
+        if (changeState.isPortrait()) setPortrait();
+        else setLandscape();
+    }
+
     protected void setLandscape() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, 4);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(getActivity(), 4);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, 4);
         }
     }
 
-    @Override
     protected void setPortrait() {
         if (list.size() > 0) {
+            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 3 : 2);
             if (gridLayoutManager != null)
                 position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             gridLayoutManager = new GridLayoutManager(getActivity(), Utils.isTabletDevice(getActivity()) ? 3 : 2);
             mRecyclerView.setLayoutManager(gridLayoutManager);
             mRecyclerView.getLayoutManager().scrollToPosition(position);
-            setGridSpaceItemDecoration(mRecyclerView, Utils.isTabletDevice(getActivity()) ? 3 : 2);
         }
     }
 

@@ -22,14 +22,11 @@ public class VideosModel implements VideoContract.Model {
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
                 if (response.isSuccessful()) {
                     VideoBean videoBean = response.body();
-                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
-                    if (userFavorites.size() > 0) {
-                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
-                            if (userFavorites.contains(videosBean.getVid()))
-                                videosBean.setFavorite(true);
-                            else
-                                videosBean.setFavorite(false);
-                        }
+                    for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                        if (DatabaseUtil.checkVideo(videosBean.getVid()))
+                            videosBean.setFavorite(true);
+                        else
+                            videosBean.setFavorite(false);
                     }
                     callBack.success(videoBean, isLoad);
                 }
@@ -55,14 +52,11 @@ public class VideosModel implements VideoContract.Model {
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
                 if (response.isSuccessful()) {
                     VideoBean videoBean = response.body();
-                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
-                    if (userFavorites.size() > 0) {
-                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
-                            if (userFavorites.contains(videosBean.getVid()))
-                                videosBean.setFavorite(true);
-                            else
-                                videosBean.setFavorite(false);
-                        }
+                    for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                        if (DatabaseUtil.checkVideo(videosBean.getVid()))
+                            videosBean.setFavorite(true);
+                        else
+                            videosBean.setFavorite(false);
                     }
                     callBack.success(videoBean, isLoad);
                 }
@@ -88,14 +82,11 @@ public class VideosModel implements VideoContract.Model {
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
                 if (response.isSuccessful()) {
                     VideoBean videoBean = response.body();
-                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
-                    if (userFavorites.size() > 0) {
-                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
-                            if (userFavorites.contains(videosBean.getVid()))
-                                videosBean.setFavorite(true);
-                            else
-                                videosBean.setFavorite(false);
-                        }
+                    for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                        if (DatabaseUtil.checkVideo(videosBean.getVid()))
+                            videosBean.setFavorite(true);
+                        else
+                            videosBean.setFavorite(false);
                     }
                     callBack.success(videoBean, isLoad);
                 }
@@ -121,14 +112,11 @@ public class VideosModel implements VideoContract.Model {
             public void onResponse(Call<VideoBean> call, Response<VideoBean> response) {
                 if (response.isSuccessful()) {
                     VideoBean videoBean = response.body();
-                    List<String> userFavorites = DatabaseUtil.queryAllVideoVIDs();
-                    if (userFavorites.size() > 0) {
-                        for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
-                            if (userFavorites.contains(videosBean.getVid()))
-                                videosBean.setFavorite(true);
-                            else
-                                videosBean.setFavorite(false);
-                        }
+                    for (VideoBean.ResponseBean.VideosBean videosBean : videoBean.getResponse().getVideos()) {
+                        if (DatabaseUtil.checkVideo(videosBean.getVid()))
+                            videosBean.setFavorite(true);
+                        else
+                            videosBean.setFavorite(false);
                     }
                     callBack.success(videoBean, isLoad);
                 }
@@ -148,8 +136,8 @@ public class VideosModel implements VideoContract.Model {
     }
 
     @Override
-    public void getUserVideosData(VideoContract.LoadDataCallBack callBack) {
-        List<VideoBean.ResponseBean.VideosBean> list = DatabaseUtil.queryAllVideos();
+    public void getUserVideosData(String selection, int offset, int limit, VideoContract.LoadDataCallBack callBack) {
+        List<VideoBean.ResponseBean.VideosBean> list = DatabaseUtil.queryVideosByLimit(selection, offset, limit);
         if (list.size() > 0)
             callBack.userTagsSuccess(list);
         else

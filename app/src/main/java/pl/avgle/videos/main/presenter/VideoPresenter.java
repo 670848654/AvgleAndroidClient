@@ -23,6 +23,8 @@ public class VideoPresenter extends Presenter<VideoContract.View> implements Bas
     private int type;
     private String time;
     private boolean isFavorite = false;
+    private int offset;
+    private String selection;
 
     //频道
     public VideoPresenter(boolean isLoad, int type, int page, int CHID, int limit, String order, VideoContract.View view) {
@@ -63,10 +65,13 @@ public class VideoPresenter extends Presenter<VideoContract.View> implements Bas
         videosModel = new VideosModel();
     }
 
-    public VideoPresenter(boolean isFavorite, VideoContract.View view) {
+    public VideoPresenter(boolean isFavorite, String selection, int offset, int limit, VideoContract.View view) {
         super(view);
         this.view = view;
         this.isFavorite = isFavorite;
+        this.selection = selection;
+        this.offset = offset;
+        this.limit = limit;
         videosModel = new VideosModel();
     }
 
@@ -98,7 +103,7 @@ public class VideoPresenter extends Presenter<VideoContract.View> implements Bas
     @Override
     public void loadData() {
         if (isFavorite) {
-            videosModel.getUserVideosData(this);
+            videosModel.getUserVideosData(selection, offset, limit, this);
         } else {
             view.showLoadingView();
             if (type == QueryType.CHANNEL_TYPE)

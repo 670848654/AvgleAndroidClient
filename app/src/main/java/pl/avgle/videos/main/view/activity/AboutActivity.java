@@ -10,12 +10,13 @@ import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.Toolbar;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-import androidx.appcompat.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.OnClick;
 import okhttp3.Call;

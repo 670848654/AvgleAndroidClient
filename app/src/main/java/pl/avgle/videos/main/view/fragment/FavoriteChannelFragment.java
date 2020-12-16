@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -15,12 +18,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.avgle.videos.R;
 import pl.avgle.videos.adapter.ChannelAdapter;
+import pl.avgle.videos.bean.ChangeState;
 import pl.avgle.videos.bean.ChannelBean;
 import pl.avgle.videos.bean.EventState;
 import pl.avgle.videos.bean.SelectBean;
@@ -113,7 +115,7 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
      * 移除收藏
      */
     private void removeCollection(int position, String chid) {
-        EventBus.getDefault().post(new EventState(0));
+        EventBus.getDefault().post(new EventState(0, isPortrait));
         DatabaseUtil.deleteChannel(chid);
         mChannelAdapter.remove(position);
         if (list.size() == 0) {
@@ -132,6 +134,8 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
     public void onEvent(EventState eventState) {}
 
     @Override
+    public void onChangeState(ChangeState changeState) {}
+
     protected void setLandscape() {
         if (gridLayoutManager != null)
             position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
@@ -140,7 +144,6 @@ public class FavoriteChannelFragment extends LazyFragment<ChannelContract.View, 
         mRecyclerView.getLayoutManager().scrollToPosition(position);
     }
 
-    @Override
     protected void setPortrait() {
         if (gridLayoutManager != null)
             position = ((GridLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();

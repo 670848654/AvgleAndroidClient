@@ -66,7 +66,8 @@
     <string name="search_with_jav_number">通过番号搜索中</string>
     <string name="confirm">确定</string>
     <string name="cancel">取消</string>
-    <string name="favorite_video_empty_error">无相关视频</string>
+    <string name="favorite_video_empty_error">未找到相关视频</string>
+    <string name="favorite_search_video_hint">搜索收藏视频列表</string>
     <string name="empty_channel">收藏为空</string>
 
     <string name="github">给我点个赞~</string>
@@ -101,6 +102,7 @@
     <string name="search_keyword">搜索相关视频</string>
     <string name="videos">播放视频</string>
     <string name="preview">播放预览</string>
+    <string name="play_preview_error">加载预览失败，可能是视频地址失效...</string>
     <string name="browser">通过外部浏览器访问</string>
 
     <string name="check_update_text">检测更新中&#8230;</string>

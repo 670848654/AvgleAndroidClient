@@ -270,9 +270,13 @@ public class DatabaseUtil {
      *
      * @return
      */
-    public static List<VideoBean.ResponseBean.VideosBean> queryAllVideos() {
+    public static List<VideoBean.ResponseBean.VideosBean> queryVideosByLimit(String selection, int offset, int limit) {
         List<VideoBean.ResponseBean.VideosBean> list = new ArrayList<>();
-        Cursor c = db.rawQuery("select * from f_videos order by id desc", null);
+//        Cursor c = db.rawQuery("select * from f_videos order by id desc", null);
+        String parameter = "%s,%s";
+        Cursor c = db.query("f_videos", null,
+                selection.isEmpty() ? null : "lower(f_title) LIKE '%" + selection.toLowerCase() + "%'", null,null,null,"id DESC",
+                String.format(parameter, offset, limit));
         while (c.moveToNext()) {
             VideoBean.ResponseBean.VideosBean bean = new VideoBean.ResponseBean.VideosBean();
             bean.setVid(c.getString(1));
@@ -297,18 +301,13 @@ public class DatabaseUtil {
         return list;
     }
 
-    /**
-     * 查询所有收藏的视频VID
-     *
-     * @return
-     */
-    public static List<String> queryAllVideoVIDs() {
-        List<String> list = new ArrayList<>();
-        Cursor c = db.rawQuery("select * from f_videos order by id desc", null);
-        while (c.moveToNext()) {
-            list.add(c.getString(1));
-        }
-        c.close();
-        return list;
+    public static int queryVideosCount(String selection) {
+        int count;
+        String QueryAll = "select * from f_videos";
+        String QuerySearch = "select * from f_videos where lower(f_title) LIKE ?";
+        Cursor cursor = selection.isEmpty() ? db.rawQuery(QueryAll, null) : db.rawQuery(QuerySearch, new String[]{ "'%" + selection.toLowerCase() + "%'"});
+        count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 }

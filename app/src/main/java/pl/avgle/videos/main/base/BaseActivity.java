@@ -11,16 +11,17 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import pl.avgle.videos.R;
@@ -56,6 +57,8 @@ public abstract class BaseActivity<V, P extends Presenter<V>> extends AppCompatA
     protected boolean isPortrait;
     protected boolean isDarkTheme;
     protected GridSpaceItemDecoration gridSpaceItemDecoration;
+    // 黑暗模式问题
+    private boolean isChanged = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -208,12 +211,20 @@ public abstract class BaseActivity<V, P extends Presenter<V>> extends AppCompatA
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            isPortrait = false;
-            setLandscape();
+        if (!isDarkTheme) isChanged = false; // 如果不是黑暗模式则跳过
+        if (isChanged) {
+            // 阻止黑暗模式调用两次
+            isChanged = false;
+            return;
         } else {
-            isPortrait = true;
-            setPortrait();
+            isChanged = true;
+            if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                isPortrait = false;
+                setLandscape();
+            } else {
+                isPortrait = true;
+                setPortrait();
+            }
         }
     }
 
