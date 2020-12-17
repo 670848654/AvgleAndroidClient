@@ -9,16 +9,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,7 +26,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.textfield.TextInputLayout;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -40,7 +35,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import cn.jzvd.Jzvd;
@@ -89,7 +83,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     private JZPlayer player;
     private RelativeLayout hdView;
-    private int index;
 
     private BottomSheetDialog mOrderDialog;
     private RadioGroup mOrderGroup;
@@ -101,7 +94,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
 
     int position = 0;
     private GridLayoutManager gridLayoutManager;
-    private AlertDialog alertDialog;
+    private VideoBean.ResponseBean.VideosBean playingBean;
     
     @Override
     public void playError() {
@@ -208,7 +201,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
             public void onChildViewDetachedFromWindow(@NonNull View view) {
 //                player = view.findViewById(R.id.player);
 //                hdView = view.findViewById(R.id.hd_view);
-                if (view.findViewById(R.id.player) == player) detachedFromWindow();
+                if (view.findViewById(R.id.player) == player) removePlayer();
             }
         });
         mVideosAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -228,11 +221,12 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                 ImageView favoriteView = view.findViewById(R.id.favorite_view);
                 switch (selectPosition) {
                     case 0:
-                        index = position;
+                        removePlayer();
                         player = view.findViewById(R.id.player);
                         hdView = view.findViewById(R.id.hd_view);
                         player.setListener(this, this);
-                        openPlayer(player, bean);
+                        playingBean = bean;
+                        openPlayer(playingBean);
                         break;
                     case 1:
                         startActivity(new Intent(this, WebViewActivity.class).putExtra("url", bean.getEmbedded_url()));
@@ -386,12 +380,14 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         });
     }
 
-    public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
+    public void openPlayer(VideoBean.ResponseBean.VideosBean bean) {
         Jzvd.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
-        hdView.setVisibility(View.GONE);
-        hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
+        if (bean.isHd()) {
+            hdView.setVisibility(View.GONE);
+            hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
+        }
         player.titleTextView.setVisibility(View.GONE);
         player.bottomProgressBar.setVisibility(View.GONE);
         player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_LIST);
@@ -407,10 +403,6 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         player.startVideo();
     }
 
-    public void detachedFromWindow () {
-        if (player != null) removePlayerView();
-    }
-
     public void removePlayer() {
         if (player != null)  removePlayerView();
     }
@@ -420,9 +412,12 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         player.setVisibility(View.GONE);
         player.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
-        hdView.setVisibility(View.VISIBLE);
-        hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
+        if (playingBean.isHd()) {
+            hdView.setVisibility(View.VISIBLE);
+            hdView.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
+        }
         player = null;
+        playingBean = null;
     }
 
     @Override
@@ -434,61 +429,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
         if (type == QueryType.DEFAULT || type == QueryType.NEW_TYPE || type == QueryType.HOT_TYPE || type == QueryType.FEATURED_TYPE) orderItem.setVisible(false);
         MenuItem searchItem = menu.findItem(R.id.search);
         searchItem.setOnMenuItemClickListener(item -> {
-            if (Utils.isFastClick()) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
-                View view = LayoutInflater.from(this).inflate(R.layout.dialog_search, null);
-                TextInputLayout til = view.findViewById(R.id.text_hint);
-                Spinner spinner = view.findViewById(R.id.spinner);
-                AtomicBoolean isJav = new AtomicBoolean(false);
-                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        switch (position) {
-                            case 0:
-                                isJav.set(false);
-                                til.setHint(getString(R.string.search_tag_text));
-                                break;
-                            case 1:
-                                isJav.set(true);
-                                til.setHint(getString(R.string.search_jav_text));
-                                break;
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
-                EditText et = view.findViewById(R.id.search_text);
-                builder.setPositiveButton(Utils.getString(R.string.confirm), null);
-                builder.setNegativeButton(Utils.getString(R.string.cancel), null);
-                builder.setCancelable(false);
-                alertDialog = builder.setView(view).create();
-                alertDialog.show();
-                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                    String text = et.getText().toString();
-                    if (!text.trim().isEmpty()) {
-                        toolbarTitle = text;
-                        st.setTitle(text);
-                        type = isJav.get() ? QueryType.JAVS_TYPE : QueryType.QUERY_TYPE;
-                        mVideosAdapter.setNewData(new ArrayList<>());
-                        tagsBean = null;
-                        favoriteItem.setVisible(false);
-                        Toast.makeText(this, isJav.get() ? Utils.getString(R.string.search_with_jav_number) :  Utils.getString(R.string.search_with_keyword), Toast.LENGTH_SHORT).show();
-                        list.clear();
-                        isLoad = false;
-                        nowPage = 0;
-                        mPresenter = createPresenter();
-                        loadData();
-                        alertDialog.dismiss();
-                    } else {
-                        et.setError(Utils.getString(R.string.favorite_tag_dialog_error));
-                        return;
-                    }
-                });
-                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> alertDialog.dismiss());
-            }
+            if (Utils.isFastClick()) Utils.showSearchVideosDialog(this);
             return false;
         });
         return true;
@@ -636,8 +577,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
     @Override
     protected void onResume() {
         super.onResume();
-        if (player != null)
-            player.releaseAllVideos();
+        removePlayer();
     }
 
     /**

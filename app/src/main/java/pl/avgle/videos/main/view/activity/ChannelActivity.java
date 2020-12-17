@@ -7,19 +7,14 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -30,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.textfield.TextInputLayout;
 import com.wuyr.rippleanimation.RippleAnimation;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,7 +33,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import pl.avgle.videos.R;
@@ -80,7 +73,6 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
     private ImageView headerImg;
     private TextView themeView;
     private boolean isChangingTheme = false;
-    private AlertDialog alertDialog;
 
     @Override
     protected void initBeforeView() {
@@ -259,68 +251,10 @@ public class ChannelActivity extends BaseActivity<ChannelContract.View, ChannelP
         getMenuInflater().inflate(R.menu.channel_menu, menu);
         MenuItem menuItem = menu.findItem(R.id.search);
         menuItem.setOnMenuItemClickListener(item -> {
-            if (Utils.isFastClick()) showSearchDialog();
+            if (Utils.isFastClick()) Utils.showSearchVideosDialog(this);
             return false;
         });
         return true;
-    }
-
-    /**
-     * 搜索
-     *
-     * @return
-     */
-    private void showSearchDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_search, null);
-        TextInputLayout til = view.findViewById(R.id.text_hint);
-        Spinner spinner = view.findViewById(R.id.spinner);
-        AtomicBoolean isJav = new AtomicBoolean(false);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        isJav.set(false);
-                        til.setHint(getString(R.string.search_tag_text));
-                        break;
-                    case 1:
-                        isJav.set(true);
-                        til.setHint(getString(R.string.search_jav_text));
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        EditText et = view.findViewById(R.id.search_text);
-        builder.setPositiveButton(Utils.getString(R.string.confirm), null);
-        builder.setNegativeButton(Utils.getString(R.string.cancel), null);
-        builder.setCancelable(false);
-        alertDialog = builder.setView(view).create();
-        alertDialog.show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String text = et.getText().toString();
-            if (!text.trim().isEmpty()) {
-                Intent intent = new Intent(this, VideosActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("type", isJav.get() ? QueryType.JAVS_TYPE : QueryType.QUERY_TYPE);
-                bundle.putString("name", text);
-                bundle.putString("img", "");
-                bundle.putString("order", (String) SharedPreferencesUtils.getParam(this, "videos_order", "mr"));
-                intent.putExtras(bundle);
-                startActivity(intent);
-                Toast.makeText(this, isJav.get() ? Utils.getString(R.string.search_with_jav_number) :  Utils.getString(R.string.search_with_keyword), Toast.LENGTH_SHORT).show();
-                alertDialog.dismiss();
-            } else {
-                et.setError(Utils.getString(R.string.favorite_tag_dialog_error));
-                return;
-            }
-        });
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> alertDialog.dismiss());
     }
 
     @Override

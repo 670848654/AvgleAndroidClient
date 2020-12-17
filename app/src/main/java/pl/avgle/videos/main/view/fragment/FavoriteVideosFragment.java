@@ -61,7 +61,6 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     private View view;
     private JZPlayer player;
     private RelativeLayout hdView;
-    private int index;
 //    private List<VideoBean.ResponseBean.VideosBean> searchList = new ArrayList<>();
     private boolean isSearch = false;
     private FloatingActionButton fab;
@@ -74,6 +73,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
     protected boolean isErr = true;
     private String selection = "";
     private int videosCount;
+    private VideoBean.ResponseBean.VideosBean playingBean;
 
     @Override
     protected View initViews(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -130,9 +130,9 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
 
                 @Override
                 public void onChildViewDetachedFromWindow(@NonNull View view) {
-                    JZPlayer player = view.findViewById(R.id.player);
-                    hdView = view.findViewById(R.id.hd_view);
-                    detachedFromWindow(player);
+//                    JZPlayer player = view.findViewById(R.id.player);
+//                    hdView = view.findViewById(R.id.hd_view);
+                    if (view.findViewById(R.id.player) == player) removePlayer();
                 }
             });
             mVideosAdapter.setOnItemClickListener((adapter, view, position) -> {
@@ -148,12 +148,12 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                 selectAdapter.setOnItemClickListener((selectAdapter, selectView, selectPosition) -> {
                     switch (selectPosition) {
                         case 0:
-                            removePlayer(player);
-                            index = position;
+                            removePlayer();
                             player = view.findViewById(R.id.player);
                             hdView = view.findViewById(R.id.hd_view);
                             player.setListener(this, this);
-                            openPlayer(player, bean);
+                            playingBean = bean;
+                            openPlayer(playingBean);
                             break;
                         case 1:
                             startActivity(new Intent(getActivity(), WebViewActivity.class).putExtra("url", bean.getEmbedded_url()));
@@ -203,12 +203,14 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         mVideosAdapter.loadMoreComplete();
     }
 
-    public void openPlayer(JZPlayer player, VideoBean.ResponseBean.VideosBean bean) {
+    public void openPlayer(VideoBean.ResponseBean.VideosBean bean) {
         Jzvd.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         player.setVisibility(View.VISIBLE);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
-        hdView.setVisibility(View.GONE);
-        hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
+        if (bean.isHd()) {
+            hdView.setVisibility(View.GONE);
+            hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
+        }
         player.titleTextView.setVisibility(View.GONE);
         player.bottomProgressBar.setVisibility(View.GONE);
         player.setUp( bean.getPreview_video_url(),  bean.getTitle(), Jzvd.SCREEN_WINDOW_NORMAL);
@@ -224,27 +226,21 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
         player.startVideo();
     }
 
-    public void detachedFromWindow (JZPlayer player) {
-        if (player != null) {
-            if (player == mVideosAdapter.getViewByPosition(index, R.id.player)) {
-                removePlayerView(player);
-            }
-        }
+    public void removePlayer() {
+        if (player != null)  removePlayerView();
     }
 
-    public void removePlayer(JZPlayer player) {
-        if (player != null) {
-            removePlayerView(player);
-        }
-    }
-
-    public void removePlayerView(JZPlayer player) {
+    public void removePlayerView() {
         player.releaseAllVideos();
         player.setVisibility(View.GONE);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         player.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_out));
-        hdView.setVisibility(View.VISIBLE);
-        hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
+        if (playingBean.isHd()) {
+            hdView.setVisibility(View.VISIBLE);
+            hdView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in));
+        }
+        player = null;
+        playingBean = null;
     }
 
     /**
@@ -319,13 +315,13 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
 
     @Override
     public void playError() {
-        removePlayer(player);
+        removePlayer();
         Toast.makeText(getActivity(), Utils.getString(R.string.play_preview_error), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void complete() {
-        removePlayer(player);
+        removePlayer();
     }
 
     @Override
