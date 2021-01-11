@@ -223,6 +223,7 @@ public class VideosActivity extends BaseActivity<VideoContract.View, VideoPresen
                     case 0:
                         removePlayer();
                         player = view.findViewById(R.id.player);
+                        player.SAVE_PROGRESS = false;
                         hdView = view.findViewById(R.id.hd_view);
                         player.setListener(this, this);
                         playingBean = bean;

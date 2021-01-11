@@ -33,6 +33,7 @@ public class VideosAdapter extends BaseQuickAdapter<VideoBean.ResponseBean.Video
         helper.setTextColor(R.id.videosName, isDarkTheme ? context.getResources().getColor(R.color.dark_navigation_text_color) : context.getResources().getColor(R.color.light_navigation_text_color));
         ImageLoader.getInstance().displayImage(item.getPreview_url(), (ImageView) helper.getView(R.id.videos_img), ImageConfig.getSimpleOptions());
         ImageView favoriteView = helper.getView(R.id.favorite_view);
+        helper.getView(R.id.player).setVisibility(View.GONE);
         if (item.isFavorite())
             favoriteView.setVisibility(View.VISIBLE);
         else

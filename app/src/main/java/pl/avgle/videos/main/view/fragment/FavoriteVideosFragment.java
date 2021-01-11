@@ -150,6 +150,7 @@ public class FavoriteVideosFragment extends LazyFragment<VideoContract.View, Vid
                         case 0:
                             removePlayer();
                             player = view.findViewById(R.id.player);
+                            player.SAVE_PROGRESS = false;
                             hdView = view.findViewById(R.id.hd_view);
                             player.setListener(this, this);
                             playingBean = bean;
